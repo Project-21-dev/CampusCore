@@ -8,7 +8,7 @@ const Footer = () => (
         <div className="col-lg-5">
           <Link className="app-footer-brand" to="/">
             <span className="app-brand-mark"><i className="bi bi-mortarboard-fill"></i></span>
-            <span><strong>SchoolSync</strong><small>Connected learning. Clearer administration.</small></span>
+            <span><strong>CampusCore</strong><small>Connected learning. Clearer administration.</small></span>
           </Link>
           <p className="app-footer-copy">A unified school platform for admissions, attendance, results, fees, communication and role-based access.</p>
         </div>

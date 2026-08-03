@@ -154,7 +154,7 @@ const Register = () => {
   };
 
   return (
-    <div className="auth-page-bg">
+    <div className="auth-page-bg app-register-page">
       <div className="container py-5">
         <div className="row justify-content-center">
           <div className="col-md-8 col-lg-7">

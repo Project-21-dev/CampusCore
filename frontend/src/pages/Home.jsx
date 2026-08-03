@@ -31,8 +31,8 @@ const Home = () => {
           <div className="row align-items-center g-5">
             <div className="col-lg-6">
               <span className="edu-badge"><i className="bi bi-mortarboard-fill"></i> A smarter digital school campus</span>
-              <h1>Smarter Schools.Better Learning.</h1>
-              <p className="edu-hero-text">Empowering administrators,teachers,students,and parents with one secure,intelligent platform</p>
+              <h1>Smarter Schools.Better Learning</h1>
+              <p className="edu-hero-text">Empowering administrators,teachers,students and parents with one secure,intelligent platform</p>
 
               <div className="d-flex flex-wrap gap-3 edu-hero-actions">
                 {user ? (
