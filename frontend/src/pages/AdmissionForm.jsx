@@ -210,14 +210,14 @@ const AdmissionForm = () => {
   };
 
   return (
-    <div className="container py-5">
+    <div className="container py-5 app-public-page app-admission-page">
       <div className="row justify-content-center">
         <div className="col-lg-10">
-          <div className="card shadow-lg">
-            <div className="card-header bg-primary text-white text-center py-4">
-              <h2 className="mb-0">Online Admission Form</h2>
+          <div className="card shadow-lg app-public-card">
+            <div className="card-header app-public-card-header text-center py-4">
+              <h2 className="mb-0">Online Admission Portal</h2>
               <p className="mb-0 mt-2">
-                Fill in all the details to apply for admission
+                Complete the application form to begin your admission journey.
               </p>
             </div>
 

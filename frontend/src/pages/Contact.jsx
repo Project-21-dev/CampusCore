@@ -26,7 +26,7 @@ const Contact = () => {
   }
 
   return (
-    <div className="container py-5">
+    <div className="container py-5 app-public-page">
       <div className="row">
         <div className="col-lg-8 mx-auto">
           <h1 className="text-center mb-5">

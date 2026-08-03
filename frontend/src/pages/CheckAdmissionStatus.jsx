@@ -37,16 +37,16 @@ const CheckAdmissionStatus = () => {
   }
 
   return (
-    <div className="container py-5">
+    <div className="container py-5 app-public-page app-status-page">
       <div className="row justify-content-center">
         <div className="col-md-8">
-          <div className="card shadow-lg">
-            <div className="card-header bg-info text-white text-center py-4">
+          <div className="card shadow-lg app-public-card">
+            <div className="card-header app-public-card-header text-center py-4">
               <h2 className="mb-0">
                 <i className="bi bi-search me-2"></i>
-                Check Admission Status
+                Track Admission Status
               </h2>
-              <p className="mb-0 mt-2">Enter your email or phone number to check application status</p>
+              <p className="mb-0 mt-2">Enter your registered email or phone number to view the latest application status.</p>
             </div>
             <div className="card-body p-4">
               <form onSubmit={handleCheck}>
@@ -73,7 +73,7 @@ const CheckAdmissionStatus = () => {
                 <div className="text-center">
                   <button
                     type="submit"
-                    className="btn btn-info btn-lg px-5"
+                    className="btn app-btn-primary btn-lg px-5"
                     disabled={loading || (!email && !phone)}
                   >
                     {loading ? (

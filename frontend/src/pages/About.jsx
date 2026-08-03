@@ -2,7 +2,7 @@ import React from 'react'
 
 const About = () => {
   return (
-    <div className="container py-5">
+    <div className="container py-5 app-public-page">
       <div className="row">
         <div className="col-lg-8 mx-auto">
           <h1 className="text-center mb-5">
@@ -96,9 +96,9 @@ const About = () => {
                 and efficient as possible.
               </p>
               <ul>
-                <li>Chinmay Desai (PL)</li>
-                <li>Prakash Mehta (PL)</li>
-                <li>Shyam Karade</li>
+                <li>Chinmay Desai(PL)</li>
+                <li>Prakash Mehta(PL)</li>
+                <li>Shyam Karale</li>
                 <li>Vishwajeet Shinde</li>
                 <li>Vineeta Chandel</li>
                 <li>Roshni Nakti</li>

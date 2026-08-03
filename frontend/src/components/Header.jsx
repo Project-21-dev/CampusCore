@@ -32,7 +32,7 @@ const Header = () => {
               <i className="bi bi-mortarboard-fill"></i>
             </span>
             <span>
-              <strong>SchoolSync</strong>
+              <strong>CampusCore</strong>
               <small>Smart campus platform</small>
             </span>
           </Link>

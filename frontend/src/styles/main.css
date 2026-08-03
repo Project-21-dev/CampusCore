@@ -12,7 +12,7 @@
   --app-muted: #65718b;
   --app-border: #e5e9f2;
   --app-surface: #ffffff;
-  --app-bg: #f6f8fc;
+  --app-bg: #f8f3e9;
   --app-navy: #111936;
   --app-radius-sm: 10px;
   --app-radius-md: 18px;
@@ -315,4 +315,280 @@ a { text-decoration: none; }
   .edu-hero-actions .btn { width: 100%; }
   .edu-classroom-card { padding: 8px; border-radius: 22px; }
   .edu-classroom-image { border-radius: 16px; }
+}
+
+
+/* =========================================================
+   SchoolSync unified visual system
+   Warm education theme shared by every page
+   ========================================================= */
+:root {
+  --school-bg: #f8f3e9;
+  --school-bg-soft: #fffaf1;
+  --school-card: #ffffff;
+  --school-navy: #17233d;
+  --school-navy-soft: #233554;
+  --school-primary: #355f92;
+  --school-primary-dark: #27496f;
+  --school-primary-soft: #eaf2fb;
+  --school-gold: #c78a35;
+  --school-text: #22324a;
+  --school-muted: #69768a;
+  --school-border: #e8dfd1;
+  --school-shadow: 0 18px 50px rgba(71, 55, 34, .10);
+}
+
+html, body, #root {
+  min-height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(199, 138, 53, .08), transparent 25%),
+    linear-gradient(180deg, var(--school-bg-soft) 0%, var(--school-bg) 100%);
+  color: var(--school-text);
+}
+
+/* Every routed page keeps the same warm canvas. */
+#root > div,
+.app-public-page,
+.auth-page-bg,
+.app-auth-page,
+.container.py-5 {
+  background-color: transparent;
+}
+
+.app-public-page {
+  max-width: 1240px;
+  min-height: calc(100vh - 170px);
+  padding-top: 64px !important;
+  padding-bottom: 76px !important;
+}
+
+.app-public-page > .row > [class*="col-"] > h1,
+.app-public-page h1.text-center {
+  color: var(--school-navy);
+  font-weight: 800;
+  letter-spacing: -.035em;
+}
+
+.app-public-page h1.text-center::after {
+  content: '';
+  display: block;
+  width: 70px;
+  height: 4px;
+  margin: 16px auto 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--school-primary), var(--school-gold));
+}
+
+/* Cards and content panels */
+.card,
+.app-public-card,
+.auth-card,
+.table-responsive {
+  background: var(--school-card);
+  border-color: var(--school-border);
+  box-shadow: var(--school-shadow);
+}
+
+.card {
+  border-radius: 20px;
+}
+
+.card-body {
+  color: var(--school-text);
+}
+
+.card-title,
+.card h2,
+.card h3,
+.card h4,
+.card h5 {
+  color: var(--school-navy);
+}
+
+.text-muted,
+.card-text,
+.card p {
+  color: var(--school-muted) !important;
+}
+
+/* Admission and status pages use the same branded header. */
+.app-public-card {
+  overflow: hidden;
+}
+
+.app-public-card-header {
+  color: #fff;
+  border-bottom: 0;
+  background:
+    radial-gradient(circle at 90% 10%, rgba(255,255,255,.12), transparent 28%),
+    linear-gradient(135deg, var(--school-navy), var(--school-navy-soft));
+}
+
+.app-public-card-header h2,
+.app-public-card-header p {
+  color: #fff !important;
+}
+
+.app-public-card-header p {
+  opacity: .78;
+}
+
+.app-admission-page .card-body,
+.app-status-page .card-body {
+  padding: clamp(24px, 4vw, 44px) !important;
+}
+
+.app-admission-page h5 {
+  margin-top: 4px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--school-border);
+  color: var(--school-navy);
+  font-weight: 800;
+}
+
+/* Forms */
+.form-control,
+.form-select,
+textarea.form-control {
+  background: #fffdfa;
+  border-color: #ded5c8;
+  color: var(--school-text);
+}
+
+.form-control:hover,
+.form-select:hover {
+  border-color: #c9bba7;
+}
+
+.form-control:focus,
+.form-select:focus,
+textarea.form-control:focus {
+  background: #fff;
+  border-color: #7b9fc5;
+  box-shadow: 0 0 0 4px rgba(53, 95, 146, .12);
+}
+
+.form-label {
+  color: #34435a;
+}
+
+.btn-primary,
+.btn-info,
+.app-btn-primary {
+  border-color: var(--school-primary) !important;
+  background: linear-gradient(135deg, var(--school-primary), var(--school-primary-dark)) !important;
+  color: #fff !important;
+  box-shadow: 0 10px 22px rgba(53, 95, 146, .20);
+}
+
+.btn-primary:hover,
+.btn-info:hover,
+.app-btn-primary:hover {
+  border-color: var(--school-primary-dark) !important;
+  background: linear-gradient(135deg, #2f5684, #203f62) !important;
+  color: #fff !important;
+}
+
+/* Public information cards */
+.app-public-page .card {
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+
+.app-public-page .card:hover {
+  transform: translateY(-4px);
+}
+
+.app-public-page .card i.text-primary,
+.app-public-page .text-primary {
+  color: var(--school-primary) !important;
+}
+
+/* Auth screens now sit on the same cream background. */
+.app-auth-page,
+.auth-page-bg {
+  min-height: calc(100vh - 78px);
+  background:
+    radial-gradient(circle at 12% 12%, rgba(199, 138, 53, .10), transparent 26%),
+    linear-gradient(180deg, var(--school-bg-soft), var(--school-bg));
+}
+
+.app-auth-layout,
+.auth-card {
+  border-color: var(--school-border);
+  box-shadow: var(--school-shadow);
+}
+
+.app-auth-story {
+  background:
+    radial-gradient(circle at 75% 15%, rgba(199, 138, 53, .22), transparent 26%),
+    linear-gradient(155deg, var(--school-navy), #29486f);
+}
+
+.app-auth-form-panel,
+.auth-card .card-body {
+  background: #fff;
+}
+
+.register-title,
+.app-auth-form-heading h2 {
+  color: var(--school-navy);
+}
+
+.register-subtitle,
+.app-auth-form-heading p {
+  color: var(--school-muted);
+}
+
+.register-icon-wrapper,
+.app-auth-icon {
+  background: var(--school-primary-soft);
+  color: var(--school-primary);
+}
+
+/* Dashboard and operational screens inherit the same canvas. */
+.container.py-5:not(.app-public-page) {
+  min-height: calc(100vh - 170px);
+}
+
+.table thead th {
+  background: #f6f0e7;
+  color: #536074;
+}
+
+/* Keep the home page aligned with the rest of the application. */
+.edu-home,
+.edu-section {
+  background: var(--school-bg-soft);
+}
+
+.edu-hero {
+  background:
+    radial-gradient(circle at 90% 12%, rgba(53, 95, 146, .13), transparent 25%),
+    linear-gradient(180deg, var(--school-bg-soft) 0%, var(--school-bg) 100%);
+}
+
+.edu-quick-stats,
+.edu-stat-grid > div {
+  background: #fffdf9;
+}
+
+/* Footer remains the dark anchor used by the navbar. */
+.app-header,
+.app-footer {
+  background: var(--school-navy);
+}
+
+@media (max-width: 767.98px) {
+  .app-public-page {
+    padding-top: 38px !important;
+    padding-bottom: 48px !important;
+  }
+
+  .app-admission-page .card-body,
+  .app-status-page .card-body {
+    padding: 22px !important;
+  }
 }
