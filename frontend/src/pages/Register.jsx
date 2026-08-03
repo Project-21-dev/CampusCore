@@ -212,7 +212,7 @@ const Register = () => {
                       <option value="Student">👨‍🎓 Student</option>
                       <option value="Teacher">👩‍🏫 Teacher</option>
                       <option value="Parent">👪 Parent</option>
-                      {/*<option value="Admin">
+                      {/* <option value="Admin">
                         👨‍💼 Admin
                       </option> */}
                     </select>

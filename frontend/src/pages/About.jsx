@@ -96,11 +96,12 @@ const About = () => {
                 and efficient as possible.
               </p>
               <ul>
-                <li>Raj Tangadi (PL)</li>
-                <li>Kiran Mahajan</li>
-                <li>Pranali Mahadik</li>
-                <li>Adarsh Kushwah</li>
-                <li>Saurabh Mahajan</li>
+                <li>Chinmay Desai (PL)</li>
+                <li>Prakash Mehta (PL)</li>
+                <li>Shyam Karade</li>
+                <li>Vishwajeet Shinde</li>
+                <li>Vineeta Chandel</li>
+                <li>Roshni Nakti</li>
               </ul>
             </div>
           </div>
