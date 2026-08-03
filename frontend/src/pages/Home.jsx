@@ -1,155 +1,147 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import classroomHero from '../assets/classroom-hero.svg'
+
+const features = [
+  { icon: 'bi-calendar2-check', tone: 'blue', title: 'Smart Attendance', text: 'Mark attendance quickly, review daily records and identify absentee trends.' },
+  { icon: 'bi-graph-up-arrow', tone: 'green', title: 'Academic Results', text: 'Publish marks and give students a simple view of their academic performance.' },
+  { icon: 'bi-person-check', tone: 'orange', title: 'Online Admissions', text: 'Manage applications, verification, admission status and student enrollment.' },
+  { icon: 'bi-wallet2', tone: 'purple', title: 'Fee Management', text: 'Track fees, payment status and pending dues from a single school workspace.' },
+  { icon: 'bi-megaphone', tone: 'red', title: 'Announcements', text: 'Share important notices with students, teachers and parents instantly.' },
+  { icon: 'bi-shield-lock', tone: 'teal', title: 'Secure Role Access', text: 'Separate dashboards and permissions for admins, teachers, students and parents.' }
+]
 
 const Home = () => {
   const { user } = useAuth()
 
-  const getDashboardLink = () => {
+  const dashboardLink = (() => {
     if (!user) return '/login'
-    switch (user.role) {
-      case 'Admin':
-        return '/admin/dashboard'
-      case 'Teacher':
-        return '/teacher/dashboard'
-      case 'Student':
-        return '/student/dashboard'
-      default:
-        return '/login'
-    }
-  }
+    if (user.role === 'Admin') return '/admin/dashboard'
+    if (user.role === 'Teacher') return '/teacher/dashboard'
+    if (user.role === 'Student') return '/student/dashboard'
+    if (user.role === 'Parent') return '/parent/dashboard'
+    return '/login'
+  })()
 
   return (
-    <div>
-      {/* Hero Section */}
-      <section className="hero-section bg-primary text-white py-5">
-        <div className="container">
-          <div className="row align-items-center">
+    <main className="edu-home">
+      <section className="edu-hero">
+        <div className="container-fluid app-page-shell">
+          <div className="row align-items-center g-5">
             <div className="col-lg-6">
-              <h1 className="display-4 fw-bold mb-4">
-                <i className="bi bi-mortarboard-fill me-3 text-warning"></i>
-                Welcome to <br></br>Smart School System
-              </h1>
-              <p className="lead mb-4">
-                A modern, comprehensive school management system designed to streamline
-                attendance tracking, academic records, and communication.
-              </p>
-              {!user ? (
-                <div>
-                  <Link to="/admission" className="btn btn-light btn-lg me-3">
-                    <i className="bi bi-file-earmark-person me-2"></i>Apply for Admission
-                  </Link>
-                </div>
-              ) : (
-                <Link to={getDashboardLink()} className="btn btn-light btn-lg">
-                  <i className="bi bi-speedometer2 me-2"></i>Go to Dashboard
-                </Link>
-              )}
+              <span className="edu-badge"><i className="bi bi-mortarboard-fill"></i> A smarter digital school campus</span>
+              <h1>Smarter Schools.Better Learning.</h1>
+              <p className="edu-hero-text">Empowering administrators,teachers,students,and parents with one secure,intelligent platform</p>
+
+              <div className="d-flex flex-wrap gap-3 edu-hero-actions">
+                {user ? (
+                  <Link to={dashboardLink} className="btn edu-btn-primary edu-btn-lg"><i className="bi bi-grid-fill"></i> Open dashboard</Link>
+                ) : (
+                  <>
+                    <Link to="/admission" className="btn edu-btn-primary edu-btn-lg"><i className="bi bi-file-earmark-person"></i> Apply for admission</Link>
+                    <Link to="/login" className="btn edu-btn-secondary edu-btn-lg"><i className="bi bi-box-arrow-in-right"></i> Sign in</Link>
+                  </>
+                )}
+              </div>
+
+              <div className="edu-trust-list">
+                <span><i className="bi bi-check-circle-fill"></i> Easy for every role</span>
+                <span><i className="bi bi-check-circle-fill"></i> Secure student records</span>
+                <span><i className="bi bi-check-circle-fill"></i> Built for desktop and mobile</span>
+              </div>
             </div>
-            <div className="col-lg-6 text-center">
-              <i className="bi bi-mortarboard" style={{ fontSize: '200px', opacity: 0.3 }}></i>
+
+            <div className="col-lg-6">
+              <div className="edu-classroom-card">
+                <img src={classroomHero} alt="Illustrated modern classroom with benches, board and students" className="edu-classroom-image" />
+                <div className="edu-floating-note edu-note-top">
+                  <span className="edu-note-icon"><i className="bi bi-calendar-check-fill"></i></span>
+                  <span><strong>94% attendance</strong><small>Today across all classes</small></span>
+                </div>
+                <div className="edu-floating-note edu-note-bottom">
+                  <span className="edu-note-icon warm"><i className="bi bi-megaphone-fill"></i></span>
+                  <span><strong>12 new updates</strong><small>Announcements and notices</small></span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-5">
-        <div className="container">
-          <h2 className="text-center mb-5">
-            <i className="bi bi-star-fill text-warning me-2"></i>
-            Key Features
-          </h2>
+      <section className="edu-quick-stats">
+        <div className="container-fluid app-page-shell">
+          <div className="edu-stat-grid">
+            <div><i className="bi bi-people-fill"></i><strong>Students</strong><span>Profiles, attendance and results</span></div>
+            <div><i className="bi bi-person-workspace"></i><strong>Teachers</strong><span>Classes, records and performance</span></div>
+            <div><i className="bi bi-building-fill-check"></i><strong>Administration</strong><span>Admissions and daily operations</span></div>
+            <div><i className="bi bi-people"></i><strong>Parents</strong><span>Updates and academic visibility</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section className="edu-section">
+        <div className="container-fluid app-page-shell">
+          <div className="edu-section-heading">
+            <span className="edu-kicker">Everything your campus needs</span>
+            <h2>A complete school experience in one place</h2>
+            <p>Practical tools reduce repetitive work and help every member of the school community stay informed.</p>
+          </div>
+
           <div className="row g-4">
-            <div className="col-md-4">
-              <div className="card h-100 shadow-sm">
-                <div className="card-body text-center">
-                  <i className="bi bi-calendar-check text-primary" style={{ fontSize: '48px' }}></i>
-                  <h4 className="mt-3">📅 Attendance Management</h4>
-                  <p className="text-muted">
-                    Easy-to-use attendance tracking with automatic notifications for absences.
-                  </p>
-                </div>
+            {features.map((feature) => (
+              <div className="col-md-6 col-xl-4" key={feature.title}>
+                <article className="edu-feature-card">
+                  <span className={`edu-feature-icon ${feature.tone}`}><i className={`bi ${feature.icon}`}></i></span>
+                  <h3>{feature.title}</h3>
+                  <p>{feature.text}</p>
+                  <span className="edu-feature-arrow"><i className="bi bi-arrow-up-right"></i></span>
+                </article>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="edu-campus-section">
+        <div className="container-fluid app-page-shell">
+          <div className="edu-campus-panel">
+            <div className="edu-campus-copy">
+              <span className="edu-kicker light">Made for real school life</span>
+              <h2>From the classroom bench to the admin office.</h2>
+              <p>SchoolSync gives each user a focused dashboard while keeping the whole campus connected through one reliable system.</p>
+              <div className="edu-role-pills">
+                <span><i className="bi bi-person-gear"></i> Admin</span>
+                <span><i className="bi bi-person-workspace"></i> Teacher</span>
+                <span><i className="bi bi-backpack-fill"></i> Student</span>
+                <span><i className="bi bi-people-fill"></i> Parent</span>
               </div>
             </div>
-            <div className="col-md-4">
-              <div className="card h-100 shadow-sm">
-                <div className="card-body text-center">
-                  <i className="bi bi-graph-up text-success" style={{ fontSize: '48px' }}></i>
-                  <h4 className="mt-3">📊 Academic Results</h4>
-                  <p className="text-muted">
-                    Upload and view academic results with detailed subject-wise breakdowns.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-4">
-              <div className="card h-100 shadow-sm">
-                <div className="card-body text-center">
-                  <i className="bi bi-bell text-warning" style={{ fontSize: '48px' }}></i>
-                  <h4 className="mt-3">🔔 Smart Notifications</h4>
-                  <p className="text-muted">
-                    Automatic email and SMS notifications for important updates and absences.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-4">
-              <div className="card h-100 shadow-sm">
-                <div className="card-body text-center">
-                  <i className="bi bi-shield-check text-info" style={{ fontSize: '48px' }}></i>
-                  <h4 className="mt-3">🔒 Secure Access</h4>
-                  <p className="text-muted">
-                    Role-based access control with JWT authentication for maximum security.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-4">
-              <div className="card h-100 shadow-sm">
-                <div className="card-body text-center">
-                  <i className="bi bi-people text-danger" style={{ fontSize: '48px' }}></i>
-                  <h4 className="mt-3">👥 User Management</h4>
-                  <p className="text-muted">
-                    Comprehensive user management for admins, teachers, and students.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-4">
-              <div className="card h-100 shadow-sm">
-                <div className="card-body text-center">
-                  <i className="bi bi-bar-chart text-secondary" style={{ fontSize: '48px' }}></i>
-                  <h4 className="mt-3">📈 Reports & Analytics</h4>
-                  <p className="text-muted">
-                    Generate detailed reports on attendance and academic performance.
-                  </p>
-                </div>
-              </div>
+            <div className="edu-campus-visual">
+              <div className="edu-mini-card"><i className="bi bi-journal-check"></i><strong>Classes stay organised</strong><span>Attendance and results remain easy to manage.</span></div>
+              <div className="edu-mini-card"><i className="bi bi-bell-fill"></i><strong>Everyone stays informed</strong><span>Important updates reach the right people quickly.</span></div>
+              <div className="edu-mini-card"><i className="bi bi-shield-check"></i><strong>Records stay protected</strong><span>Role-based access keeps information secure.</span></div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-light py-5">
-        <div className="container text-center">
-          <h2 className="mb-4">Ready to Get Started?</h2>
-          <p className="lead text-muted mb-4">
-            Join thousands of schools already using Smart School System
-          </p>
-          {!user && (
+      <section className="edu-final-cta">
+        <div className="container-fluid app-page-shell">
+          <div className="edu-final-card">
             <div>
-              <Link to="/admission" className="btn btn-primary btn-lg">
-                <i className="bi bi-file-earmark-person me-2"></i>Apply for Admission
-              </Link>
+              <span className="edu-kicker light">Ready to begin?</span>
+              <h2>Bring your school community together with SchoolSync.</h2>
             </div>
-          )}
+            <div className="d-flex flex-wrap gap-3">
+              <Link to="/admission" className="btn edu-btn-light edu-btn-lg">Apply now</Link>
+              <Link to="/login" className="btn edu-btn-outline-light edu-btn-lg">Login</Link>
+            </div>
+          </div>
         </div>
       </section>
-    </div>
+    </main>
   )
 }
 
 export default Home
-

@@ -1,0 +1,97 @@
+<svg width="960" height="720" viewBox="0 0 960 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF8E8"/>
+      <stop offset="1" stop-color="#F6EACF"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="480" y1="410" x2="480" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D9B27A"/>
+      <stop offset="1" stop-color="#B9824A"/>
+    </linearGradient>
+    <linearGradient id="desk" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#F0B35D"/>
+      <stop offset="1" stop-color="#D58431"/>
+    </linearGradient>
+    <linearGradient id="board" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#285A4A"/>
+      <stop offset="1" stop-color="#173E35"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#5B3B1F" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+
+  <rect width="960" height="720" rx="42" fill="url(#wall)"/>
+  <rect y="430" width="960" height="290" fill="url(#floor)"/>
+
+  <rect x="58" y="56" width="844" height="52" rx="18" fill="#2F4C73"/>
+  <circle cx="92" cy="82" r="9" fill="#F8D77E"/>
+  <rect x="116" y="72" width="170" height="20" rx="10" fill="#EAF2FF" fill-opacity="0.92"/>
+  <rect x="748" y="69" width="118" height="26" rx="13" fill="#F8D77E" fill-opacity="0.92"/>
+
+  <g filter="url(#shadow)">
+    <rect x="112" y="142" width="470" height="232" rx="20" fill="#F9F4E9"/>
+    <rect x="134" y="165" width="426" height="184" rx="12" fill="url(#board)"/>
+    <path d="M189 222C240 185 288 195 332 226C378 260 424 262 500 204" stroke="#F9E6A2" stroke-width="8" stroke-linecap="round" stroke-dasharray="2 16"/>
+    <text x="168" y="288" fill="#FFF8D7" font-size="38" font-family="Arial, sans-serif" font-weight="700">WELCOME TO SCHOOLSYNC</text>
+    <rect x="274" y="357" width="150" height="12" rx="6" fill="#C98C44"/>
+  </g>
+
+  <g>
+    <rect x="650" y="142" width="192" height="196" rx="20" fill="#E9F5FF" stroke="#C7DDF2" stroke-width="10"/>
+    <path d="M746 148V334M656 240H836" stroke="#B0CBE5" stroke-width="8"/>
+    <path d="M676 172C708 154 739 158 765 180" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" opacity="0.8"/>
+    <circle cx="802" cy="186" r="18" fill="#FFD873"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="626" y="358" width="260" height="78" rx="18" fill="#FFFFFF"/>
+    <circle cx="670" cy="397" r="24" fill="#5D7FD4"/>
+    <path d="M661 397L668 404L681 389" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="708" y="390" fill="#263A55" font-size="22" font-family="Arial, sans-serif" font-weight="700">Connected campus</text>
+    <text x="708" y="417" fill="#71819A" font-size="16" font-family="Arial, sans-serif">Attendance • Results • Fees</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <g transform="translate(86 474)">
+      <rect x="0" y="0" width="224" height="54" rx="12" fill="url(#desk)"/>
+      <rect x="26" y="49" width="18" height="112" rx="9" fill="#855426"/>
+      <rect x="180" y="49" width="18" height="112" rx="9" fill="#855426"/>
+      <rect x="18" y="70" width="188" height="18" rx="9" fill="#A96A2F"/>
+      <rect x="64" y="-12" width="54" height="16" rx="8" fill="#F7D77F"/>
+      <rect x="128" y="-12" width="36" height="16" rx="8" fill="#9FC6F2"/>
+    </g>
+    <g transform="translate(368 474)">
+      <rect x="0" y="0" width="224" height="54" rx="12" fill="url(#desk)"/>
+      <rect x="26" y="49" width="18" height="112" rx="9" fill="#855426"/>
+      <rect x="180" y="49" width="18" height="112" rx="9" fill="#855426"/>
+      <rect x="18" y="70" width="188" height="18" rx="9" fill="#A96A2F"/>
+      <rect x="52" y="-12" width="58" height="16" rx="8" fill="#F7D77F"/>
+      <rect x="120" y="-12" width="48" height="16" rx="8" fill="#F2A9B9"/>
+    </g>
+    <g transform="translate(650 474)">
+      <rect x="0" y="0" width="224" height="54" rx="12" fill="url(#desk)"/>
+      <rect x="26" y="49" width="18" height="112" rx="9" fill="#855426"/>
+      <rect x="180" y="49" width="18" height="112" rx="9" fill="#855426"/>
+      <rect x="18" y="70" width="188" height="18" rx="9" fill="#A96A2F"/>
+      <rect x="54" y="-12" width="56" height="16" rx="8" fill="#9FC6F2"/>
+      <rect x="120" y="-12" width="48" height="16" rx="8" fill="#B8E3B1"/>
+    </g>
+  </g>
+
+  <g>
+    <rect x="54" y="388" width="36" height="110" rx="18" fill="#5F8A56"/>
+    <circle cx="72" cy="380" r="34" fill="#79A96D"/>
+    <circle cx="52" cy="402" r="22" fill="#8DBB7B"/>
+    <circle cx="91" cy="404" r="24" fill="#6F9E64"/>
+  </g>
+
+  <g opacity="0.9">
+    <circle cx="736" cy="566" r="26" fill="#F0B77B"/>
+    <path d="M699 642C703 600 716 582 736 582C757 582 769 600 774 642" fill="#5E79BD"/>
+    <circle cx="454" cy="566" r="26" fill="#D9A06E"/>
+    <path d="M417 642C421 600 434 582 454 582C475 582 487 600 492 642" fill="#E98D7B"/>
+    <circle cx="172" cy="566" r="26" fill="#F3C28D"/>
+    <path d="M135 642C139 600 152 582 172 582C193 582 205 600 210 642" fill="#5A9B86"/>
+  </g>
+</svg>
