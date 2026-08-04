@@ -1,5 +1,7 @@
 package com.schoolsync.dto;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,13 +10,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AtRiskStudentDTO {
+
     private Long studentId;
     private String studentName;
     private String rollNo;
     private String className;
-    private double attendancePercentage;
-    private double pendingFeeAmount;
-    private double averageResultPercentage;
-    private double riskScore; // 0 (low risk) - 100 (high risk)
-    private String riskLevel; // Low, Medium, High
+
+    private Double attendancePercentage;
+    private Double pendingFeeAmount;
+    private Double averageResultPercentage;
+
+    private Integer absenceCount;
+    private Integer failedSubjects;
+    private Double performanceTrend;
+
+    private String riskLevel;
+    private Double confidence;
+
+    private List<String> reasons;
+    private List<String> recommendations;
+
+    private String dataStatus;
 }

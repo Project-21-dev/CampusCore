@@ -69,7 +69,7 @@ public class AnalyticsController {
     @GetMapping("/export/at-risk-students.csv")
     public ResponseEntity<byte[]> exportAtRiskStudentsCsv() {
         StringBuilder csv = new StringBuilder(
-                "Student ID,Name,Roll No,Class,Attendance %,Pending Fee,Avg Result %,Risk Score,Risk Level\n");
+                "Student ID,Name,Roll No,Class,Attendance %,Pending Fee,Avg Result %,Absences,Failed Subjects,Performance Trend,Risk Level,Confidence,Data Status\n");
         for (AtRiskStudentDTO s : analyticsService.getAtRiskStudents()) {
             csv.append(s.getStudentId()).append(",")
                     .append(csvSafe(s.getStudentName())).append(",")
@@ -78,8 +78,12 @@ public class AnalyticsController {
                     .append(s.getAttendancePercentage()).append(",")
                     .append(s.getPendingFeeAmount()).append(",")
                     .append(s.getAverageResultPercentage()).append(",")
-                    .append(s.getRiskScore()).append(",")
-                    .append(s.getRiskLevel()).append("\n");
+                    .append(s.getAbsenceCount()).append(",")
+                    .append(s.getFailedSubjects()).append(",")
+                    .append(s.getPerformanceTrend()).append(",")
+                    .append(csvSafe(s.getRiskLevel())).append(",")
+                    .append(s.getConfidence()).append(",")
+                    .append(csvSafe(s.getDataStatus())).append("\n");
         }
         return csvResponse(csv.toString(), "at-risk-students.csv");
     }
