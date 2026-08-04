@@ -75,8 +75,8 @@ const About = () => {
                   <h5>Frontend</h5>
                   <ul>
                     <li>React.js</li>
-                    <li>Bootstrap 5</li>
                     <li>Axios</li>
+                    <li>Bootstrap 5</li>
                     <li>React Router</li>
                   </ul>
                 </div>
