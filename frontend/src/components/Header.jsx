@@ -41,15 +41,15 @@ const Header = () => {
             className="navbar-toggler app-nav-toggle"
             type="button"
             data-bs-toggle="collapse"
-            data-bs-target="#schoolSyncNav"
-            aria-controls="schoolSyncNav"
+            data-bs-target="#campusCoreNav"
+            aria-controls="campusCoreNav"
             aria-expanded="false"
             aria-label="Toggle navigation"
           >
             <span className="navbar-toggler-icon"></span>
           </button>
 
-          <div className="collapse navbar-collapse" id="schoolSyncNav">
+          <div className="collapse navbar-collapse" id="campusCoreNav">
             <ul className="navbar-nav mx-xl-auto align-items-xl-center app-nav-list">
               <li className="nav-item"><NavLink className={navClass} to="/"><i className="bi bi-house-door"></i>Home</NavLink></li>
               <li className="nav-item"><NavLink className={navClass} to="/about"><i className="bi bi-info-circle"></i>About</NavLink></li>

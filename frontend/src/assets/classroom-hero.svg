@@ -33,7 +33,7 @@
     <rect x="112" y="142" width="470" height="232" rx="20" fill="#F9F4E9"/>
     <rect x="134" y="165" width="426" height="184" rx="12" fill="url(#board)"/>
     <path d="M189 222C240 185 288 195 332 226C378 260 424 262 500 204" stroke="#F9E6A2" stroke-width="8" stroke-linecap="round" stroke-dasharray="2 16"/>
-    <text x="168" y="288" fill="#FFF8D7" font-size="38" font-family="Arial, sans-serif" font-weight="700">WELCOME TO SCHOOLSYNC</text>
+    <text x="168" y="288" fill="#FFF8D7" font-size="38" font-family="Arial, sans-serif" font-weight="700">WELCOME TO CAMPUSCORE</text>
     <rect x="274" y="357" width="150" height="12" rx="6" fill="#C98C44"/>
   </g>
 

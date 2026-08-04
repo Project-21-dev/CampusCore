@@ -8,10 +8,10 @@
 		<version>4.0.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.schoolsync</groupId>
-	<artifactId>SchoolSync-v22</artifactId>
+	<groupId>com.campuscore</groupId>
+	<artifactId>CampusCore-v22</artifactId>
 	<version>0.0.1</version>
-	<name>SchoolSync-v22</name>
+	<name>CampusCore-v22</name>
 	<description>Smart School management System</description>
 	<url/>
 	<licenses>

@@ -42,7 +42,7 @@ const Login = () => {
       <div className="container-fluid app-page-shell">
         <div className="app-auth-layout">
           <section className="app-auth-story">
-            <Link className="app-auth-brand" to="/"><span className="app-brand-mark"><i className="bi bi-mortarboard-fill"></i></span><strong>SchoolSync</strong></Link>
+            <Link className="app-auth-brand" to="/"><span className="app-brand-mark"><i className="bi bi-mortarboard-fill"></i></span><strong>CampusCore</strong></Link>
             <div>
               <span className="app-eyebrow light"><i className="bi bi-shield-check"></i> Secure role-based access</span>
               <h1>Welcome back to your school workspace.</h1>
@@ -80,7 +80,7 @@ const Login = () => {
                 </button>
               </form>
 
-              <div className="app-auth-divider"><span>New to SchoolSync?</span></div>
+              <div className="app-auth-divider"><span>New to CampusCore?</span></div>
               <div className="d-grid gap-3">
                 <Link to="/register" className="btn app-btn-outline">Create an account</Link>
                 <Link to="/admission" className="app-auth-secondary-link"><i className="bi bi-file-earmark-person"></i>Apply for admission instead</Link>

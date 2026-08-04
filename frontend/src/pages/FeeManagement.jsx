@@ -186,7 +186,7 @@ const FeeManagement = () => {
       key: 'rzp_test_RwGSKuvstSm5HH',
       amount: Math.round((fee.amount || 0) * 100),
       currency: 'INR',
-      name: 'School Sync',
+      name: 'CampusCore',
       description: `Fee: ${fee.feeType}`,
       handler: async function (response) {
         try {

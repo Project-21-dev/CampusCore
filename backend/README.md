@@ -1,6 +1,6 @@
-# SchoolSync Backend API
+# CampusCore Backend API
 
-Complete Spring Boot REST API for the SchoolSync School Management System.
+Complete Spring Boot REST API for the CampusCore School Management System.
 
 ## Features
 
@@ -29,9 +29,9 @@ Complete Spring Boot REST API for the SchoolSync School Management System.
 
 ## Database Setup
 
-1. Create a MySQL database named `SchoolSync`:
+1. Create a MySQL database named `CampusCore`:
 ```sql
-CREATE DATABASE SchoolSync;
+CREATE DATABASE CampusCore;
 ```
 
 2. Update database credentials in `src/main/resources/application.properties` if needed:
@@ -45,7 +45,7 @@ spring.datasource.password=cdac
 1. Clone the repository
 2. Navigate to the backend directory:
 ```bash
-cd SchoolSync
+cd CampusCore
 ```
 
 3. Build the project:
@@ -110,7 +110,7 @@ The API will start on `http://localhost:5287`
 ## Project Structure
 
 ```
-src/main/java/com/schoolsync/
+src/main/java/com/campuscore/
 ├── config/          # Security and application configuration
 ├── controller/      # REST API controllers
 ├── dto/            # Data Transfer Objects
