@@ -8,6 +8,7 @@ const TeacherDashboard = () => {
   const [students, setStudents] = useState([])
   const [recentAttendance, setRecentAttendance] = useState([])
   const [loading, setLoading] = useState(true)
+  const [aiStudents, setAiStudents] = useState([])
 
   useEffect(() => {
     fetchData()
@@ -15,13 +16,21 @@ const TeacherDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [studentsRes, attendanceRes] = await Promise.all([
+      const [studentsResult, attendanceResult, aiResult] = await Promise.allSettled([
         api.get('/user/students'),
-        api.get('/attendance/all')
+        api.get('/attendance/all'),
+        api.get('/analytics/at-risk-students')
       ])
 
-      setStudents(studentsRes.data)
-      setRecentAttendance(attendanceRes.data.slice(0, 10))
+      if (studentsResult.status === 'fulfilled') setStudents(studentsResult.value.data)
+      if (attendanceResult.status === 'fulfilled') setRecentAttendance(attendanceResult.value.data.slice(0, 10))
+      if (aiResult.status === 'fulfilled') {
+        setAiStudents(
+          aiResult.value.data.filter((student) =>
+            student.riskLevel === 'High Risk' || student.riskLevel === 'Medium Risk'
+          )
+        )
+      }
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
@@ -83,6 +92,37 @@ const TeacherDashboard = () => {
               </Link>
             </div>
           </div>
+        </div>
+      </div>
+
+
+      {/* AI Student Support */}
+      <div className="card shadow-sm mb-4">
+        <div className="card-header bg-danger text-white">
+          <h5 className="mb-0"><i className="bi bi-cpu-fill me-2"></i>Students Requiring Attention</h5>
+        </div>
+        <div className="card-body">
+          {aiStudents.length === 0 ? (
+            <p className="text-muted text-center py-3 mb-0">No students are currently flagged as medium or high risk.</p>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-hover align-middle mb-0">
+                <thead><tr><th>Student</th><th>Class</th><th>AI Risk</th><th>Confidence</th><th>Reasons</th><th>Recommended Action</th></tr></thead>
+                <tbody>
+                  {aiStudents.slice(0, 10).map((student) => (
+                    <tr key={student.studentId}>
+                      <td>{student.studentName}<div className="small text-muted">{student.rollNo}</div></td>
+                      <td>{student.className}</td>
+                      <td><span className={`badge ${student.riskLevel === 'High Risk' ? 'bg-danger' : 'bg-warning text-dark'}`}>{student.riskLevel}</span></td>
+                      <td>{student.dataStatus === 'AVAILABLE' ? `${Math.round((student.confidence || 0) * 100)}%` : '-'}</td>
+                      <td><small>{(student.reasons || []).slice(0, 2).join(' ')}</small></td>
+                      <td><small>{(student.recommendations || [])[0] || '-'}</small></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
 

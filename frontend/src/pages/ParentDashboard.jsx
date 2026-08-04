@@ -9,6 +9,7 @@ const ParentDashboard = () => {
   const [message, setMessage] = useState({ type: '', text: '' })
   const [linkForm, setLinkForm] = useState({ childRollNo: '', relation: 'Guardian' })
   const [linking, setLinking] = useState(false)
+  const [aiByStudentId, setAiByStudentId] = useState({})
 
   useEffect(() => {
     if (user?.userId) {
@@ -18,8 +19,22 @@ const ParentDashboard = () => {
 
   const fetchChildren = async () => {
     try {
-      const response = await api.get(`/parent/${user.userId}/children`)
-      setChildren(response.data)
+      const [childrenResult, aiResult] = await Promise.allSettled([
+        api.get(`/parent/${user.userId}/children`),
+        api.get('/analytics/at-risk-students')
+      ])
+
+      const childData = childrenResult.status === 'fulfilled' ? childrenResult.value.data : []
+      setChildren(childData)
+
+      if (aiResult.status === 'fulfilled') {
+        const childIds = new Set(childData.map((child) => child.studentId))
+        const predictions = {}
+        aiResult.value.data.forEach((prediction) => {
+          if (childIds.has(prediction.studentId)) predictions[prediction.studentId] = prediction
+        })
+        setAiByStudentId(predictions)
+      }
     } catch (error) {
       console.error('Error fetching children:', error)
     } finally {
@@ -153,6 +168,28 @@ const ParentDashboard = () => {
                       <div className="text-muted small">Avg Result</div>
                     </div>
                   </div>
+                  {aiByStudentId[child.studentId] && (() => {
+                    const prediction = aiByStudentId[child.studentId]
+                    const unavailable = prediction.dataStatus && prediction.dataStatus !== 'AVAILABLE'
+                    return (
+                      <div className="border-top mt-3 pt-3">
+                        <h6 className="mb-2"><i className="bi bi-stars me-2"></i>Academic Support Status</h6>
+                        <p className="mb-2">
+                          <strong>Status:</strong>{' '}
+                          <span className={`badge ${prediction.riskLevel === 'High Risk' ? 'bg-danger' : prediction.riskLevel === 'Medium Risk' ? 'bg-warning text-dark' : prediction.riskLevel === 'Low Risk' ? 'bg-success' : 'bg-secondary'}`}>
+                            {prediction.riskLevel}
+                          </span>
+                        </p>
+                        {!unavailable && (
+                          <>
+                            <div className="small mb-2"><strong>Why:</strong> {(prediction.reasons || []).join(' ')}</div>
+                            <div className="small"><strong>Recommended support:</strong> {(prediction.recommendations || []).join(' ')}</div>
+                          </>
+                        )}
+                        {unavailable && <div className="small text-muted">{(prediction.reasons || []).join(' ')}</div>}
+                      </div>
+                    )
+                  })()}
                 </div>
               </div>
             </div>

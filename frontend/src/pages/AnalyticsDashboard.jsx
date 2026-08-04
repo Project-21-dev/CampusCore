@@ -29,6 +29,7 @@ const AnalyticsDashboard = () => {
   const [atRiskStudents, setAtRiskStudents] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [selectedAiStudent, setSelectedAiStudent] = useState(null)
 
   useEffect(() => {
     fetchAnalytics()
@@ -362,10 +363,13 @@ const AnalyticsDashboard = () => {
           )}
         </div>
       </div>
-      {/* At-Risk Students */}
+      {/* AI-Powered At-Risk Students */}
       <div className="card shadow-sm mb-4">
         <div className="card-header bg-danger text-white d-flex justify-content-between align-items-center">
-          <h5 className="mb-0"><i className="bi bi-exclamation-triangle-fill me-2"></i>At-Risk Students</h5>
+          <h5 className="mb-0">
+            <i className="bi bi-cpu-fill me-2"></i>
+            AI-Powered Student Risk Analysis
+          </h5>
           <button
             className="btn btn-sm btn-light"
             onClick={() => downloadCsv('/analytics/export/at-risk-students.csv', 'at-risk-students.csv')}
@@ -377,51 +381,116 @@ const AnalyticsDashboard = () => {
           {atRiskStudents.length === 0 ? (
             <p className="text-muted text-center py-4">No student data yet.</p>
           ) : (
-            <div className="table-responsive">
-              <table className="table table-hover align-middle">
-                <thead>
-                  <tr>
-                    <th>Roll No</th>
-                    <th>Name</th>
-                    <th>Class</th>
-                    <th>Attendance %</th>
-                    <th>Pending Fee</th>
-                    <th>Avg Result %</th>
-                    <th>Risk Level</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {atRiskStudents
-                    .filter((s) => s.riskLevel !== 'Low')
-                    .slice(0, 15)
-                    .map((s) => (
-                      <tr key={s.studentId}>
-                        <td>{s.rollNo}</td>
-                        <td>{s.studentName}</td>
-                        <td>{s.className}</td>
-                        <td>{s.attendancePercentage}%</td>
-                        <td>₹{s.pendingFeeAmount}</td>
-                        <td>{s.averageResultPercentage}%</td>
-                        <td>
-                          <span
-                            className={`badge ${s.riskLevel === 'High' ? 'bg-danger' : 'bg-warning text-dark'}`}
-                          >
-                            {s.riskLevel}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-              {atRiskStudents.filter((s) => s.riskLevel !== 'Low').length === 0 && (
-                <p className="text-muted text-center py-3 mb-0">
-                  No students currently flagged as at-risk. 🎉
-                </p>
-              )}
-            </div>
+            <>
+              <div className="alert alert-info py-2">
+                <i className="bi bi-info-circle me-2"></i>
+                Risk level and confidence are predicted by the Random Forest AI model. Reasons and recommendations explain the student metrics used for the prediction.
+              </div>
+              <div className="table-responsive">
+                <table className="table table-hover align-middle">
+                  <thead>
+                    <tr>
+                      <th>Roll No</th>
+                      <th>Name</th>
+                      <th>Class</th>
+                      <th>Attendance</th>
+                      <th>Avg Result</th>
+                      <th>Absences</th>
+                      <th>Failed</th>
+                      <th>Trend</th>
+                      <th>AI Risk</th>
+                      <th>Confidence</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {atRiskStudents.slice(0, 15).map((student) => {
+                      const unavailable = student.dataStatus && student.dataStatus !== 'AVAILABLE'
+                      const riskClass = student.riskLevel === 'High Risk'
+                        ? 'bg-danger'
+                        : student.riskLevel === 'Medium Risk'
+                          ? 'bg-warning text-dark'
+                          : student.riskLevel === 'Low Risk'
+                            ? 'bg-success'
+                            : 'bg-secondary'
+
+                      return (
+                        <tr key={student.studentId}>
+                          <td>{student.rollNo || '-'}</td>
+                          <td>{student.studentName || '-'}</td>
+                          <td>{student.className || '-'}</td>
+                          <td>{student.attendancePercentage == null ? '-' : `${student.attendancePercentage}%`}</td>
+                          <td>{student.averageResultPercentage == null ? '-' : `${student.averageResultPercentage}%`}</td>
+                          <td>{student.absenceCount ?? '-'}</td>
+                          <td>{student.failedSubjects ?? '-'}</td>
+                          <td>
+                            {student.performanceTrend == null
+                              ? '-'
+                              : `${student.performanceTrend > 0 ? '+' : ''}${student.performanceTrend}%`}
+                          </td>
+                          <td><span className={`badge ${riskClass}`}>{student.riskLevel}</span></td>
+                          <td>{unavailable ? '-' : `${Math.round((student.confidence || 0) * 100)}%`}</td>
+                          <td>
+                            <button
+                              className="btn btn-sm btn-outline-primary"
+                              onClick={() => setSelectedAiStudent(student)}
+                            >
+                              <i className="bi bi-eye me-1"></i>Details
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       </div>
+
+      {selectedAiStudent && (
+        <div className="card shadow-sm mb-4 border-primary">
+          <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 className="mb-0">
+              <i className="bi bi-stars me-2"></i>
+              AI Analysis — {selectedAiStudent.studentName}
+            </h5>
+            <button className="btn-close btn-close-white" onClick={() => setSelectedAiStudent(null)}></button>
+          </div>
+          <div className="card-body">
+            <div className="row g-3 mb-3">
+              <div className="col-md-4">
+                <strong>Risk Level:</strong>{' '}
+                <span className={`badge ${selectedAiStudent.riskLevel === 'High Risk' ? 'bg-danger' : selectedAiStudent.riskLevel === 'Medium Risk' ? 'bg-warning text-dark' : selectedAiStudent.riskLevel === 'Low Risk' ? 'bg-success' : 'bg-secondary'}`}>
+                  {selectedAiStudent.riskLevel}
+                </span>
+              </div>
+              <div className="col-md-4">
+                <strong>Confidence:</strong>{' '}
+                {selectedAiStudent.dataStatus === 'AVAILABLE'
+                  ? `${Math.round((selectedAiStudent.confidence || 0) * 100)}%`
+                  : 'Not available'}
+              </div>
+              <div className="col-md-4"><strong>Data Status:</strong> {selectedAiStudent.dataStatus || 'AVAILABLE'}</div>
+            </div>
+            <div className="row g-4">
+              <div className="col-md-6">
+                <h6><i className="bi bi-exclamation-circle me-2"></i>Reasons</h6>
+                <ul className="mb-0">
+                  {(selectedAiStudent.reasons || []).map((reason, index) => <li key={index}>{reason}</li>)}
+                </ul>
+              </div>
+              <div className="col-md-6">
+                <h6><i className="bi bi-lightbulb me-2"></i>Recommendations</h6>
+                <ul className="mb-0">
+                  {(selectedAiStudent.recommendations || []).map((recommendation, index) => <li key={index}>{recommendation}</li>)}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

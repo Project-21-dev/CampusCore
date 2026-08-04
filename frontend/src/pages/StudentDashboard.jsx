@@ -17,6 +17,7 @@ const StudentDashboard = () => {
   const [notifications, setNotifications] = useState([])
   const [showNotifications, setShowNotifications] = useState(false)
   const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [aiPrediction, setAiPrediction] = useState(null)
 
   useEffect(() => {
     if (user?.studentId) {
@@ -27,10 +28,20 @@ const StudentDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [attendanceRes, resultsRes] = await Promise.all([
+      const [attendanceResult, resultsResult, aiResult] = await Promise.allSettled([
         api.get(`/attendance/student/${user.studentId}`),
-        api.get(`/result/student/${user.studentId}`)
+        api.get(`/result/student/${user.studentId}`),
+        api.get('/analytics/at-risk-students')
       ])
+
+      const attendanceRes = attendanceResult.status === 'fulfilled' ? attendanceResult.value : { data: [] }
+      const resultsRes = resultsResult.status === 'fulfilled' ? resultsResult.value : { data: [] }
+
+      if (aiResult.status === 'fulfilled') {
+        setAiPrediction(
+          aiResult.value.data.find((prediction) => prediction.studentId === user.studentId) || null
+        )
+      }
 
       // Ensure data is an array, default to empty array if not
       const attendanceData = Array.isArray(attendanceRes.data) ? attendanceRes.data : []
@@ -186,6 +197,40 @@ const StudentDashboard = () => {
             ) : (
               <div className="list-group-item text-center text-muted py-3 small">No new notifications</div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* AI-guided Improvement Plan */}
+      {aiPrediction && (
+        <div className="card shadow-sm mb-4">
+          <div className="card-header bg-info text-white">
+            <h5 className="mb-0"><i className="bi bi-stars me-2"></i>Your Improvement Plan</h5>
+          </div>
+          <div className="card-body">
+            <h5>
+              Performance Status:{' '}
+              <span className={`badge ${aiPrediction.riskLevel === 'High Risk' ? 'bg-danger' : aiPrediction.riskLevel === 'Medium Risk' ? 'bg-warning text-dark' : aiPrediction.riskLevel === 'Low Risk' ? 'bg-success' : 'bg-secondary'}`}>
+                {aiPrediction.riskLevel === 'High Risk'
+                  ? 'Needs Immediate Support'
+                  : aiPrediction.riskLevel === 'Medium Risk'
+                    ? 'Needs Attention'
+                    : aiPrediction.riskLevel === 'Low Risk'
+                      ? 'On Track'
+                      : 'Awaiting More Records'}
+              </span>
+            </h5>
+            <p className="text-muted">Use these suggestions as a practical improvement plan. Speak with your teacher if you need help.</p>
+            <div className="row g-4">
+              <div className="col-md-6">
+                <h6><i className="bi bi-clipboard-data me-2"></i>Areas to Improve</h6>
+                <ul className="mb-0">{(aiPrediction.reasons || []).map((reason, index) => <li key={index}>{reason}</li>)}</ul>
+              </div>
+              <div className="col-md-6">
+                <h6><i className="bi bi-check2-circle me-2"></i>Suggested Actions</h6>
+                <ul className="mb-0">{(aiPrediction.recommendations || []).map((item, index) => <li key={index}>{item}</li>)}</ul>
+              </div>
+            </div>
           </div>
         </div>
       )}

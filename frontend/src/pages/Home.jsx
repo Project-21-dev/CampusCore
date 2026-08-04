@@ -31,8 +31,8 @@ const Home = () => {
           <div className="row align-items-center g-5">
             <div className="col-lg-6">
               <span className="edu-badge"><i className="bi bi-mortarboard-fill"></i> A smarter digital school campus</span>
-              <h1>Smarter Schools.Better Learning</h1>
-              <p className="edu-hero-text">Empowering administrators,teachers,students and parents with one secure,intelligent platform</p>
+              <h1>Smarter Schools. Better Learning.</h1>
+              <p className="edu-hero-text">Empowering administrators,teachers,students and parents with one secure,intelligent platform.</p>
 
               <div className="d-flex flex-wrap gap-3 edu-hero-actions">
                 {user ? (
@@ -109,7 +109,7 @@ const Home = () => {
             <div className="edu-campus-copy">
               <span className="edu-kicker light">Made for real school life</span>
               <h2>From the classroom bench to the admin office.</h2>
-              <p>SchoolSync gives each user a focused dashboard while keeping the whole campus connected through one reliable system.</p>
+              <p>CampusCore gives each user a focused dashboard while keeping the whole campus connected through one reliable system.</p>
               <div className="edu-role-pills">
                 <span><i className="bi bi-person-gear"></i> Admin</span>
                 <span><i className="bi bi-person-workspace"></i> Teacher</span>
@@ -131,7 +131,7 @@ const Home = () => {
           <div className="edu-final-card">
             <div>
               <span className="edu-kicker light">Ready to begin?</span>
-              <h2>Bring your school community together with SchoolSync.</h2>
+              <h2>Bring your school community together with CampusCore.</h2>
             </div>
             <div className="d-flex flex-wrap gap-3">
               <Link to="/admission" className="btn edu-btn-light edu-btn-lg">Apply now</Link>
