@@ -31,7 +31,7 @@ const Footer = () => (
         </div>
       </div>
       <div className="app-footer-bottom">
-        <span>© 2026 SchoolSync. All rights reserved.</span>
+        <span>© 2026 CampusCore. All rights reserved.</span>
         <span>Built for modern schools</span>
       </div>
     </div>
