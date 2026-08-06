@@ -190,7 +190,7 @@ jobs:
               f"Unexpected prediction returned: {prediction}"
           )
 
-          assert len(probabilities) == len(model.classes__), (
+          assert len(probabilities) == len(model.classes_), (
               "Probability count does not match model classes"
           )
 
