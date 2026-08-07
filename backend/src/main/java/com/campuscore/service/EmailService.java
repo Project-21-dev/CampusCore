@@ -71,7 +71,7 @@ public class EmailService {
     }
 
     public void sendAdmissionApprovalEmail(String recipientEmail, String applicantName, String rollNumber,
-            String appliedClass) {
+            String appliedClass, String loginEmail, String temporaryPassword) {
         if (recipientEmail == null || recipientEmail.isBlank()) {
             System.err.println("Cannot send admission approval email: recipient email is empty");
             return;
@@ -93,10 +93,12 @@ public class EmailService {
                 "</div>" +
                 "<div style='background-color: #fff3e0; padding: 15px; border-left: 4px solid #ff9800; margin: 20px 0;'>"
                 +
-                "<h4 style='color: #e65100; margin-top: 0;'>Next Steps:</h4>" +
-                "<p>You can now register as a student using your assigned <strong>Roll Number: "
-                + escapeHtml(rollNumber) + "</strong></p>" +
-                "<p>Please visit the student registration portal and use this roll number to complete your registration.</p>"
+                "<h4 style='color: #e65100; margin-top: 0;'>Your CampusCore Login:</h4>" +
+                "<p><strong>Login Email:</strong> " + escapeHtml(loginEmail) + "</p>" +
+                "<p><strong>Temporary Password:</strong> <span style='font-family: monospace; font-size: 16px;'>"
+                + escapeHtml(temporaryPassword) + "</span></p>" +
+                "<p>Your student account has already been created. You do not need to register separately.</p>" +
+                "<p>Please keep this password private and change it after login when password-change functionality is available.</p>"
                 +
                 "</div>" +
                 "<p>If you have any questions, please feel free to contact the school administration.</p>" +

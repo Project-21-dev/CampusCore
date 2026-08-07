@@ -16,7 +16,7 @@ public interface AdmissionService {
     
     AdmissionDTO getAdmissionById(Long id);
     
-    void updateAdmissionStatus(Long id, AdmissionStatusUpdateDTO statusUpdate);
+    Map<String, Object> updateAdmissionStatus(Long id, AdmissionStatusUpdateDTO statusUpdate);
 
 
     void updateAdmission(Long id, Admission updatedAdmission);

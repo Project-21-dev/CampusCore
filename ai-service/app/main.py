@@ -2,9 +2,10 @@ from pathlib import Path
 
 import joblib
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 
 from app.models.student import StudentData
+from app.face_service import enroll_student, enrollment_status, verify_student
 
 
 app = FastAPI(
@@ -138,3 +139,23 @@ def predict(data: StudentData):
         "reasons": reasons,
         "recommendations": recommendations
     }
+
+@app.post("/face/enroll")
+async def face_enroll(
+    student_id: int = Form(...),
+    images: list[UploadFile] = File(...),
+):
+    return await enroll_student(student_id, images)
+
+
+@app.get("/face/enrollment/{student_id}")
+def face_enrollment_status(student_id: int):
+    return enrollment_status(student_id)
+
+
+@app.post("/face/verify")
+async def face_verify(
+    student_id: int = Form(...),
+    image: UploadFile = File(...),
+):
+    return await verify_student(student_id, image)

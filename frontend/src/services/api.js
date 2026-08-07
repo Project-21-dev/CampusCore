@@ -59,9 +59,14 @@ const checkBackend = async () => {
 
 const enhancedAPI = {
   ...api,
-  post: async (url, data) => {
+  post: async (url, data, config = {}) => {
     try {
-      return await api.post(url, data)
+      const requestConfig = { ...config }
+      if (data instanceof FormData) {
+        requestConfig.headers = { ...(config.headers || {}) }
+        delete requestConfig.headers['Content-Type']
+      }
+      return await api.post(url, data, requestConfig)
     } catch (error) {
       if (error.code === 'ERR_NETWORK' || error.code === 'ECONNREFUSED') {
         console.warn('Backend not available, using mock API')
@@ -79,6 +84,9 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+    }
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type']
     }
     return config
   },
