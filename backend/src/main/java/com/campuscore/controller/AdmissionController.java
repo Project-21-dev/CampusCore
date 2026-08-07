@@ -43,7 +43,7 @@ public class AdmissionController {
 
     @GetMapping("/check-status")
     public ResponseEntity<?> checkStatus(@RequestParam(required = false) String email,
-            @RequestParam(required = false) String phone) {
+                                         @RequestParam(required = false) String phone) {
         try {
             return ResponseEntity.ok(admissionService.checkStatus(email, phone));
         } catch (RuntimeException e) {
@@ -56,7 +56,7 @@ public class AdmissionController {
     public ResponseEntity<List<AdmissionDTO>> getAllAdmissions() {
         return ResponseEntity.ok(admissionService.getAllAdmissions());
     }
-    
+
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<AdmissionDTO> getAdmissionById(@PathVariable Long id) {
@@ -67,29 +67,25 @@ public class AdmissionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    
 
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('Admin')")
-    public ResponseEntity<Map<String, String>> updateAdmissionStatus(
+    public ResponseEntity<Map<String, Object>> updateAdmissionStatus(
             @PathVariable Long id,
             @RequestBody AdmissionStatusUpdateDTO statusUpdate) {
         try {
-            admissionService.updateAdmissionStatus(id, statusUpdate);
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Admission status updated successfully");
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(admissionService.updateAdmissionStatus(id, statusUpdate));
         } catch (RuntimeException e) {
-            Map<String, String> errorResponse = new HashMap<>();
+            Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
     }
 
-
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('Admin')")
-    public ResponseEntity<?> updateAdmission(@PathVariable Long id, @RequestBody Admission updatedAdmission) {
+    public ResponseEntity<?> updateAdmission(@PathVariable Long id,
+                                             @RequestBody Admission updatedAdmission) {
         try {
             admissionService.updateAdmission(id, updatedAdmission);
             return ResponseEntity.ok(Map.of("message", "Admission updated successfully"));

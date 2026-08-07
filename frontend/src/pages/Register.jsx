@@ -76,11 +76,6 @@ const Register = () => {
       newErrors.phone = "Enter valid Indian phone number";
     }
 
-    if (formData.role === "Student") {
-      if (!formData.rollNo.trim()) newErrors.rollNo = "Roll number is required";
-      if (!formData.className) newErrors.className = "Class is required";
-    }
-
     if (formData.role === "Teacher" && !formData.subject.trim()) {
       newErrors.subject = "Subject is required";
     }
@@ -112,10 +107,7 @@ const Register = () => {
       phone: formData.phone.trim() || null,
     };
 
-    if (formData.role === "Student") {
-      registerData.rollNo = formData.rollNo.trim() || null;
-      registerData.className = formData.className.trim() || null;
-    } else if (formData.role === "Teacher") {
+    if (formData.role === "Teacher") {
       registerData.subject = formData.subject.trim() || null;
     } else if (formData.role === "Parent") {
       registerData.childRollNo = formData.childRollNo.trim() || null;
@@ -209,7 +201,6 @@ const Register = () => {
                       }}
                     >
                       <option value="">-- Please Select Your Role --</option>
-                      <option value="Student">👨‍🎓 Student</option>
                       <option value="Teacher">👩‍🏫 Teacher</option>
                       <option value="Parent">👪 Parent</option>
                       {/* <option value="Admin">
@@ -225,11 +216,9 @@ const Register = () => {
                       <div className="alert alert-success mt-2 mb-0">
                         <i className="bi bi-check-circle-fill me-2"></i>
                         <strong>Selected:</strong> {formData.role} -{" "}
-                        {formData.role === "Student"
-                          ? "You will be able to view your attendance, results, and fees"
-                          : formData.role === "Teacher"
-                            ? "You will be able to mark attendance and upload results"
-                            : "You will have full system access"}
+                        {formData.role === "Teacher"
+                          ? "You will be able to manage teaching activities"
+                          : "You can view your child's school information"}
                       </div>
                     )}
                     {!formData.role && !errors.role && (
@@ -238,6 +227,10 @@ const Register = () => {
                         Select your role to continue with registration
                       </small>
                     )}
+                    <div className="alert alert-info mt-3 mb-0 py-2">
+                      <i className="bi bi-mortarboard-fill me-2"></i>
+                      Student accounts are created automatically after an admission is approved by the administrator.
+                    </div>
                   </div>
 
                   <div className="row">

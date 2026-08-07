@@ -43,6 +43,13 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
+        // Student accounts are provisioned only after an admission is approved.
+        // Keep this backend guard even though Student is hidden from the public UI.
+        if ("Student".equalsIgnoreCase(request.getRole())) {
+            return new AuthResponse(null, null, null, null, null, null, null,
+                    "Student accounts are created automatically after admission approval", false);
+        }
+
         // Check if username already exists
         if (userRepository.existsByUsername(request.getUsername())) {
             return new AuthResponse(null, null, null, null, null, null, null, "Username already exists", false);
