@@ -5,28 +5,37 @@ on:
     branches:
       - main
       - devops-pipeline
+
   pull_request:
     branches:
       - main
+      - devops-pipeline
 
 permissions:
   contents: read
 
 jobs:
+
+  # =========================================================
+  # SPRING BOOT BACKEND
+  # =========================================================
   backend:
-    name: Build Spring Boot Backend
+    name: Build and Test Spring Boot Backend
     runs-on: ubuntu-latest
 
     services:
       mysql:
         image: mysql:8.0
+
         env:
           MYSQL_DATABASE: schoolsync2
-          MYSQL_ROOT_PASSWORD: warrior@27
+          MYSQL_ROOT_PASSWORD: campuscore_ci_password
+
         ports:
           - 3306:3306
+
         options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pwarrior@27"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pcampuscore_ci_password"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=10
@@ -36,13 +45,14 @@ jobs:
         working-directory: backend
 
     env:
-      SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/schoolsync2
+      SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/schoolsync2?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: warrior@27
+      SPRING_DATASOURCE_PASSWORD: campuscore_ci_password
 
+      # Dummy mail values are enough for build and test.
+      # Do not put your real Gmail address or app password here.
       SPRING_MAIL_USERNAME: dummy@example.com
-      SPRING_MAIL_PASSWORD: dummy
-
+      SPRING_MAIL_PASSWORD: dummy-app-password
       APP_MAIL_SENDER_NAME: CampusCore CI
       APP_MAIL_SENDER_EMAIL: dummy@example.com
 
@@ -57,12 +67,23 @@ jobs:
           java-version: "21"
           cache: maven
 
-      - name: Make Maven Wrapper Executable
+      - name: Make Maven wrapper executable
         run: chmod +x mvnw
 
-      - name: Build and Test Backend
+      - name: Build and test backend
         run: ./mvnw --batch-mode --no-transfer-progress clean verify
 
+      - name: Upload backend JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: campuscore-backend
+          path: backend/target/*.jar
+          if-no-files-found: error
+
+
+  # =========================================================
+  # REACT FRONTEND
+  # =========================================================
   frontend:
     name: Build React Frontend
     runs-on: ubuntu-latest
@@ -82,12 +103,23 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install Dependencies
+      - name: Install frontend dependencies
         run: npm ci
 
-      - name: Build Frontend
+      - name: Build frontend
         run: npm run build
 
+      - name: Upload frontend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: campuscore-frontend
+          path: frontend/dist
+          if-no-files-found: error
+
+
+  # =========================================================
+  # FASTAPI AI SERVICE
+  # =========================================================
   ai-service:
     name: Validate FastAPI AI Service
     runs-on: ubuntu-latest
@@ -100,21 +132,69 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: ai-service/requirements.txt
 
-      - name: Install Dependencies
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install AI-service dependencies
         run: python -m pip install -r requirements.txt
 
-      - name: Compile Python Files
+      - name: Compile Python files
         run: python -m compileall app training
 
-      - name: Verify FastAPI App
-        run: python -c "from app.main import app; print(app.title)"
-
-      - name: Verify Trained Model Exists
+      - name: Verify trained Random Forest model exists
         run: test -f models/student_risk_model.pkl
+
+      - name: Verify FastAPI application imports
+        run: |
+          python -c "from app.main import app; print('FastAPI application:', app.title)"
+
+      - name: Run sample Random Forest prediction
+        run: |
+          python - <<'PY'
+          import joblib
+          import pandas as pd
+
+          model = joblib.load("models/student_risk_model.pkl")
+
+          sample_student = pd.DataFrame([
+              {
+                  "attendancePercentage": 70.0,
+                  "averageResultPercentage": 48.0,
+                  "absenceCount": 16,
+                  "failedSubjects": 2,
+                  "performanceTrend": -12.0
+              }
+          ])
+
+          prediction = model.predict(sample_student)[0]
+          probabilities = model.predict_proba(sample_student)[0]
+
+          print("Prediction:", prediction)
+          print("Probabilities:", probabilities)
+          print("Confidence:", max(probabilities))
+
+          allowed_predictions = {
+              "Low Risk",
+              "Medium Risk",
+              "High Risk"
+          }
+
+          assert prediction in allowed_predictions, (
+              f"Unexpected prediction returned: {prediction}"
+          )
+
+          assert len(probabilities) == len(model.classes_), (
+              "Probability count does not match model classes"
+          )
+
+          assert 0.0 <= max(probabilities) <= 1.0, (
+              "Confidence must be between 0 and 1"
+          )
+          PY
