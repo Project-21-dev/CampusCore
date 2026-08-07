@@ -28,10 +28,11 @@ const FeeManagement = () => {
 
   const fetchData = async () => {
     try {
-      const endpoint = user?.role === 'Admin' ? '/studentmanagement/fee/all' : `/studentmanagement/fee/student/${user?.studentId}`
+      const canViewAll = user?.role === 'Admin' || user?.role === 'Teacher'
+      const endpoint = canViewAll ? '/studentmanagement/fee/all' : `/studentmanagement/fee/student/${user?.studentId}`
       const [feesRes, studentsRes] = await Promise.all([
         api.get(endpoint),
-        user?.role === 'Admin' ? api.get('/user/students') : Promise.resolve({ data: [] })
+        canViewAll ? api.get('/user/students') : Promise.resolve({ data: [] })
       ])
       setFees(feesRes.data)
       setStudents(studentsRes.data)
