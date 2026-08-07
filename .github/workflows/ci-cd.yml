@@ -10,6 +10,7 @@ on:
   pull_request:
     branches:
       - main
+      - devops-pipeline
 
 permissions:
   contents: read
@@ -20,7 +21,7 @@ jobs:
   # SPRING BOOT BACKEND
   # ============================================================
   backend:
-    name: Build Spring Boot Backend
+    name: Build and Test Spring Boot Backend
     runs-on: ubuntu-latest
 
     services:
@@ -45,13 +46,14 @@ jobs:
         working-directory: backend
 
     env:
-      SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/schoolsync2
+      SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/schoolsync2?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: campuscore_ci_password
 
+      # Dummy mail values are enough for build and test.
+      # Do not put your real Gmail address or app password here.
       SPRING_MAIL_USERNAME: dummy@example.com
-      SPRING_MAIL_PASSWORD: dummy
-
+      SPRING_MAIL_PASSWORD: dummy-app-password
       APP_MAIL_SENDER_NAME: CampusCore CI
       APP_MAIL_SENDER_EMAIL: dummy@example.com
 
@@ -66,10 +68,10 @@ jobs:
           java-version: "21"
           cache: maven
 
-      - name: Make Maven Wrapper Executable
+      - name: Make Maven wrapper executable
         run: chmod +x mvnw
 
-      - name: Build and Test Backend
+      - name: Build and test backend
         run: ./mvnw --batch-mode --no-transfer-progress clean verify
 
 
@@ -95,10 +97,10 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install Dependencies
+      - name: Install frontend dependencies
         run: npm ci
 
-      - name: Build Frontend
+      - name: Build frontend
         run: npm run build
 
 
