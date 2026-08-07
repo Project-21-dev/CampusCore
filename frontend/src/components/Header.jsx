@@ -67,8 +67,22 @@ const Header = () => {
                     <i className="bi bi-sliders"></i>Manage
                   </button>
                   <ul className="dropdown-menu app-dropdown-menu">
-                    <li><Link className="dropdown-item" to="/attendance"><i className="bi bi-calendar-check"></i>Attendance</Link></li>
-                    <li><Link className="dropdown-item" to="/results"><i className="bi bi-bar-chart"></i>Results</Link></li>
+                    <li>
+                      <Link
+                        className="dropdown-item"
+                        to={user.role === 'Admin' ? '/admin/attendance' : '/attendance'}
+                      >
+                        <i className="bi bi-calendar-check"></i>Attendance
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        className="dropdown-item"
+                        to={user.role === 'Admin' ? '/admin/results' : '/results'}
+                      >
+                        <i className="bi bi-bar-chart"></i>Results
+                      </Link>
+                    </li>
                     <li><Link className="dropdown-item" to="/enrollment"><i className="bi bi-journal-bookmark"></i>Enrollment</Link></li>
                     <li><Link className="dropdown-item" to="/fees"><i className="bi bi-wallet2"></i>Fees</Link></li>
                     {user.role === 'Admin' && <li><hr className="dropdown-divider" /></li>}

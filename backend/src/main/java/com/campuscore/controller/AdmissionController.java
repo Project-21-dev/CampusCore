@@ -64,16 +64,13 @@ public class AdmissionController {
     
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<Map<String, String>> updateAdmissionStatus(
+    public ResponseEntity<Map<String, Object>> updateAdmissionStatus(
             @PathVariable Long id,
             @RequestBody AdmissionStatusUpdateDTO statusUpdate) {
         try {
-            admissionService.updateAdmissionStatus(id, statusUpdate);
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Admission status updated successfully");
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(admissionService.updateAdmissionStatus(id, statusUpdate));
         } catch (RuntimeException e) {
-            Map<String, String> errorResponse = new HashMap<>();
+            Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }

@@ -5,3 +5,6 @@ joblib
 scikit-learn
 pydantic
 faker
+numpy
+python-multipart
+opencv-python-headless

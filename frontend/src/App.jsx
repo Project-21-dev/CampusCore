@@ -11,9 +11,9 @@ import Register from './pages/Register'
 import AdminDashboard from './pages/AdminDashboard'
 import TeacherDashboard from './pages/TeacherDashboard'
 import StudentDashboard from './pages/StudentDashboard'
-import StudentAttendance from './pages/StudentAttendance'
+import FaceAttendanceStudent from './pages/FaceAttendanceStudent'
 import StudentResults from './pages/StudentResults'
-import Attendance from './pages/Attendance'
+import FaceAttendanceTeacher from './pages/FaceAttendanceTeacher'
 import Results from './pages/Results'
 import AdminManageStudents from './pages/AdminManageStudents'
 import AdminManageTeachers from './pages/AdminManageTeachers'
@@ -99,7 +99,7 @@ function AppRoutes() {
         path="/student/attendance"
         element={
           <PrivateRoute allowedRoles={['Student']}>
-            <><Header /><StudentAttendance /><Footer /></>
+            <><Header /><FaceAttendanceStudent /><Footer /></>
           </PrivateRoute>
         }
       />
@@ -116,8 +116,8 @@ function AppRoutes() {
       <Route
         path="/attendance"
         element={
-          <PrivateRoute allowedRoles={['Teacher', 'Admin']}>
-            <><Header /><Attendance /><Footer /></>
+          <PrivateRoute allowedRoles={['Teacher']}>
+            <><Header /><FaceAttendanceTeacher /><Footer /></>
           </PrivateRoute>
         }
       />
