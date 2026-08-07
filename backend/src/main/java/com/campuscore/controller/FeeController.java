@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class FeeController {
     private final FeeReceiptService feeReceiptService;
 
     @PostMapping
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> createFee(@RequestBody Map<String, Object> request) {
         try {
             feeService.createFee(request);
@@ -32,16 +34,19 @@ public class FeeController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<FeeDTO>> getAllFees() {
         return ResponseEntity.ok(feeService.getAllFees());
     }
 
     @GetMapping("/student/{studentId}")
+    @PreAuthorize("hasAnyRole('Admin', 'Student')")
     public ResponseEntity<List<FeeDTO>> getStudentFees(@PathVariable Long studentId) {
         return ResponseEntity.ok(feeService.getStudentFees(studentId));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> updateFee(@PathVariable Long id, @RequestBody Map<String, Object> request) {
         try {
             feeService.updateFee(id, request);
@@ -52,6 +57,7 @@ public class FeeController {
     }
 
     @PutMapping("/pay/{id}")
+    @PreAuthorize("hasRole('Student')")
     public ResponseEntity<?> payFee(@PathVariable Long id, @RequestBody Map<String, String> request) {
         try {
             feeService.payFee(id, request);
@@ -62,12 +68,14 @@ public class FeeController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> deleteFee(@PathVariable Long id) {
         feeService.deleteFee(id);
         return ResponseEntity.ok(Map.of("message", "Fee deleted successfully"));
     }
 
     @PostMapping("/remind/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> sendReminder(@PathVariable Long id) {
         try {
             feeService.sendReminder(id);
@@ -78,12 +86,14 @@ public class FeeController {
     }
 
     @PostMapping("/remind-overdue")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> sendOverdueReminders() {
         int count = feeService.sendOverdueReminders();
         return ResponseEntity.ok(Map.of("message", "Reminders sent", "count", count));
     }
 
     @GetMapping("/receipt/{id}")
+    @PreAuthorize("hasAnyRole('Admin', 'Student')")
     public ResponseEntity<byte[]> downloadReceipt(@PathVariable Long id) {
         try {
             byte[] pdfBytes = feeReceiptService.generateReceipt(id);

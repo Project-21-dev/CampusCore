@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +33,9 @@ public class AdmissionController {
 
     private final AdmissionService admissionService;
 
+    // Public intake endpoints - permitAll in SecurityConfig, left unannotated
+    // intentionally (an @PreAuthorize here would 403 despite the filter-level
+    // permitAll, since applicants aren't authenticated yet).
     @PostMapping("/apply")
     public ResponseEntity<Map<String, Object>> applyAdmission(@RequestBody Admission admission) {
         return ResponseEntity.ok(admissionService.applyAdmission(admission));
@@ -48,11 +52,13 @@ public class AdmissionController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<AdmissionDTO>> getAllAdmissions() {
         return ResponseEntity.ok(admissionService.getAllAdmissions());
     }
     
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<AdmissionDTO> getAdmissionById(@PathVariable Long id) {
         try {
             AdmissionDTO admission = admissionService.getAdmissionById(id);
@@ -64,6 +70,7 @@ public class AdmissionController {
     
 
     @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<Map<String, String>> updateAdmissionStatus(
             @PathVariable Long id,
             @RequestBody AdmissionStatusUpdateDTO statusUpdate) {
@@ -81,6 +88,7 @@ public class AdmissionController {
 
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> updateAdmission(@PathVariable Long id, @RequestBody Admission updatedAdmission) {
         try {
             admissionService.updateAdmission(id, updatedAdmission);
@@ -91,6 +99,7 @@ public class AdmissionController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> deleteAdmission(@PathVariable Long id) {
         admissionService.deleteAdmission(id);
         return ResponseEntity.ok(Map.of("message", "Admission deleted successfully"));

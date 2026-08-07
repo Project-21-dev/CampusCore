@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,42 +32,51 @@ public class AnalyticsController {
     private final AnalyticsService analyticsService;
 
     @GetMapping("/overview")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<OverviewStatsDTO> getOverview() {
         return ResponseEntity.ok(analyticsService.getOverviewStats());
     }
 
     @GetMapping("/attendance-by-class")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<AttendanceByClassDTO>> getAttendanceByClass() {
         return ResponseEntity.ok(analyticsService.getAttendanceByClass());
     }
 
     @GetMapping("/attendance-trend")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<DailyAttendanceDTO>> getAttendanceTrend(
             @RequestParam(defaultValue = "14") int days) {
         return ResponseEntity.ok(analyticsService.getDailyAttendanceTrend(days));
     }
 
     @GetMapping("/fee-summary")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<FeeStatusSummaryDTO>> getFeeSummary() {
         return ResponseEntity.ok(analyticsService.getFeeSummaryByStatus());
     }
 
     @GetMapping("/admission-funnel")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<AdmissionStatusSummaryDTO>> getAdmissionFunnel() {
         return ResponseEntity.ok(analyticsService.getAdmissionFunnel());
     }
 
     @GetMapping("/result-performance")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<ResultPerformanceDTO>> getResultPerformance() {
         return ResponseEntity.ok(analyticsService.getResultPerformanceByClass());
     }
 
+    // Used on every role's dashboard (Admin, Teacher, Student, Parent widgets)
     @GetMapping("/at-risk-students")
+    @PreAuthorize("hasAnyRole('Admin', 'Teacher', 'Student', 'Parent')")
     public ResponseEntity<List<AtRiskStudentDTO>> getAtRiskStudents() {
         return ResponseEntity.ok(analyticsService.getAtRiskStudents());
     }
 
     @GetMapping("/export/at-risk-students.csv")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<byte[]> exportAtRiskStudentsCsv() {
         StringBuilder csv = new StringBuilder(
                 "Student ID,Name,Roll No,Class,Attendance %,Pending Fee,Avg Result %,Absences,Failed Subjects,Performance Trend,Risk Level,Confidence,Data Status\n");
@@ -89,6 +99,7 @@ public class AnalyticsController {
     }
 
     @GetMapping("/export/overview.csv")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<byte[]> exportOverviewCsv() {
         OverviewStatsDTO o = analyticsService.getOverviewStats();
         StringBuilder csv = new StringBuilder("Metric,Value\n");

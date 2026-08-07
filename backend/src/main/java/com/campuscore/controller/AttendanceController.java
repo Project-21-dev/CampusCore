@@ -4,6 +4,7 @@ import com.campuscore.dto.AttendanceDTO;
 import com.campuscore.service.AttendanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class AttendanceController {
 //    }
 
     @PostMapping("/mark")
+    @PreAuthorize("hasAnyRole('Admin', 'Teacher')")
     public ResponseEntity<?> markAttendance(@RequestBody Map<String, Object> request) {
         try {
             // Check if attendance already exists
@@ -47,16 +49,19 @@ public class AttendanceController {
         }
     }//
     @GetMapping("/all")
+    @PreAuthorize("hasAnyRole('Admin', 'Teacher')")
     public ResponseEntity<List<AttendanceDTO>> getAllAttendance() {
         return ResponseEntity.ok(attendanceService.getAllAttendance());
     }
 
     @GetMapping("/student/{studentId}")
+    @PreAuthorize("hasAnyRole('Admin', 'Teacher', 'Student')")
     public ResponseEntity<List<AttendanceDTO>> getStudentAttendance(@PathVariable Long studentId) {
         return ResponseEntity.ok(attendanceService.getStudentAttendance(studentId));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('Admin', 'Teacher')")
     public ResponseEntity<?> updateAttendance(@PathVariable Long id, @RequestBody Map<String, Object> request) {
         try {
             attendanceService.updateAttendance(id, request);
@@ -67,6 +72,7 @@ public class AttendanceController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('Admin', 'Teacher')")
     public ResponseEntity<?> deleteAttendance(@PathVariable Long id) {
         try {
             attendanceService.deleteAttendance(id);

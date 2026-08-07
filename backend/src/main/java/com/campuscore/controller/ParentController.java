@@ -4,6 +4,7 @@ import com.campuscore.dto.ChildSummaryDTO;
 import com.campuscore.service.ParentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Map;
 @RequestMapping("/api/parent")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
+@PreAuthorize("hasRole('Parent')")
 public class ParentController {
 
     private final ParentService parentService;

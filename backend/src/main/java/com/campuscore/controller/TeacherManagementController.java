@@ -3,12 +3,14 @@ package com.campuscore.controller;
 import com.campuscore.service.TeacherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/teachermanagement")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
+@PreAuthorize("hasRole('Teacher')")
 public class TeacherManagementController {
 
     private final TeacherService teacherService;
