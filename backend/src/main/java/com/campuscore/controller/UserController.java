@@ -8,6 +8,7 @@ import com.campuscore.service.StudentService;
 import com.campuscore.service.TeacherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class UserController {
     private final TeacherService teacherService;
 
     @GetMapping("/students")
+    @PreAuthorize("hasAnyRole('Admin', 'Teacher')")
     public ResponseEntity<List<StudentDTO>> getAllStudents() {
         return ResponseEntity.ok(studentService.getAllStudents());
     }
@@ -37,6 +39,7 @@ public class UserController {
     }
 
     @PostMapping("/students")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> createStudent(@RequestBody Map<String, String> request) {
         try {
             studentService.createStudent(request);
@@ -47,6 +50,7 @@ public class UserController {
     }
 
     @PutMapping("/students/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> updateStudent(@PathVariable Long id, @RequestBody Map<String, String> request) {
         try {
             studentService.updateStudent(id, request);
@@ -57,6 +61,7 @@ public class UserController {
     }
 
     @DeleteMapping("/students/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> deleteStudent(@PathVariable Long id) {
         try {
             studentService.deleteStudent(id);
@@ -71,6 +76,7 @@ public class UserController {
 
 
     @PostMapping("/students/bulk-import")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> bulkImportStudents(
             @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
         try {
@@ -81,11 +87,13 @@ public class UserController {
     }
 
     @GetMapping("/classes")
+    @PreAuthorize("hasAnyRole('Admin', 'Teacher')")
     public ResponseEntity<List<String>> getAllClasses() {
         return ResponseEntity.ok(studentService.getAllClassNames());
     }
 
     @GetMapping("/students/class/{className}")
+    @PreAuthorize("hasAnyRole('Admin', 'Teacher')")
     public ResponseEntity<List<StudentDTO>> getStudentsByClass(@PathVariable String className) {
         return ResponseEntity.ok(studentService.getStudentsByClassName(className));
     }
@@ -93,6 +101,7 @@ public class UserController {
 
 
     @GetMapping("/teachers")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<TeacherDTO>> getAllTeachers() {
         return ResponseEntity.ok(teacherService.getAllTeachers());
     }
@@ -108,6 +117,7 @@ public class UserController {
     }
 
     @PostMapping("/teachers")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> createTeacher(@RequestBody Map<String, String> request) {
         try {
             teacherService.createTeacher(request);
@@ -117,6 +127,8 @@ public class UserController {
         }
     }
 
+    // Admin manages teachers here; a Teacher also hits this same endpoint to
+    // save their own profile edits from TeacherProfile.jsx.
     @PutMapping("/teachers/{id}")
     @PreAuthorize("@securityAccess.canAccessTeacher(authentication, #id)")
     public ResponseEntity<?> updateTeacher(@PathVariable Long id, @RequestBody Map<String, String> request) {
@@ -129,6 +141,7 @@ public class UserController {
     }
 
     @DeleteMapping("/teachers/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> deleteTeacher(@PathVariable Long id) {
         try {
             teacherService.deleteTeacher(id);

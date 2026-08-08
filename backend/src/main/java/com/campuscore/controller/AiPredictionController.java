@@ -1,5 +1,6 @@
 package com.campuscore.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import com.campuscore.service.AiPredictionService;
 @RestController
 @RequestMapping("/api/ai")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('Admin', 'Teacher')")
 public class AiPredictionController {
 
     private final AiPredictionService aiPredictionService;

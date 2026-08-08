@@ -30,6 +30,9 @@ public class AdmissionController {
 
     private final AdmissionService admissionService;
 
+    // Public intake endpoints - permitAll in SecurityConfig, left unannotated
+    // intentionally (an @PreAuthorize here would 403 despite the filter-level
+    // permitAll, since applicants aren't authenticated yet).
     @PostMapping("/apply")
     public ResponseEntity<Map<String, Object>> applyAdmission(@RequestBody Admission admission) {
         return ResponseEntity.ok(admissionService.applyAdmission(admission));
@@ -37,7 +40,7 @@ public class AdmissionController {
 
     @GetMapping("/check-status")
     public ResponseEntity<?> checkStatus(@RequestParam(required = false) String email,
-            @RequestParam(required = false) String phone) {
+                                         @RequestParam(required = false) String phone) {
         try {
             return ResponseEntity.ok(admissionService.checkStatus(email, phone));
         } catch (RuntimeException e) {
@@ -46,11 +49,13 @@ public class AdmissionController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<AdmissionDTO>> getAllAdmissions() {
         return ResponseEntity.ok(admissionService.getAllAdmissions());
     }
-    
+
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<AdmissionDTO> getAdmissionById(@PathVariable Long id) {
         try {
             AdmissionDTO admission = admissionService.getAdmissionById(id);
@@ -59,9 +64,9 @@ public class AdmissionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    
 
     @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<Map<String, Object>> updateAdmissionStatus(
             @PathVariable Long id,
             @RequestBody AdmissionStatusUpdateDTO statusUpdate) {
@@ -74,9 +79,10 @@ public class AdmissionController {
         }
     }
 
-
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateAdmission(@PathVariable Long id, @RequestBody Admission updatedAdmission) {
+    @PreAuthorize("hasRole('Admin')")
+    public ResponseEntity<?> updateAdmission(@PathVariable Long id,
+                                             @RequestBody Admission updatedAdmission) {
         try {
             admissionService.updateAdmission(id, updatedAdmission);
             return ResponseEntity.ok(Map.of("message", "Admission updated successfully"));
@@ -86,6 +92,7 @@ public class AdmissionController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> deleteAdmission(@PathVariable Long id) {
         admissionService.deleteAdmission(id);
         return ResponseEntity.ok(Map.of("message", "Admission deleted successfully"));

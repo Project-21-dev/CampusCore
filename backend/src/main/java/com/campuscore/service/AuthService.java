@@ -1,5 +1,8 @@
 package com.campuscore.service;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,14 @@ public class AuthService {
     private final com.campuscore.repository.ParentStudentRepository parentStudentRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
+
+    // Roles obtainable through public self-registration. Admin is
+    // deliberately excluded — administrator accounts are provisioned
+    // out-of-band and must never be reachable by sending a different
+    // request body to this endpoint.
+    private static final java.util.Set<Role> SELF_REGISTERABLE_ROLES =
+            java.util.EnumSet.of(Role.Student, Role.Teacher, Role.Parent);
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -47,6 +58,21 @@ public class AuthService {
         }
         if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
             return new AuthResponse(null, null, null, null, null, null, null, null, "Email is already registered", false);
+        }
+
+        // Resolve and validate the requested role against the self-registration
+        // allow-list before anything is persisted. The role is never trusted
+        // as-is: an unknown value or a non-self-registerable role (e.g. Admin)
+        // is rejected here rather than handed to Role.valueOf() further down.
+        Role role;
+        try {
+            role = Role.valueOf(request.getRole());
+        } catch (IllegalArgumentException | NullPointerException ex) {
+            throw new RuntimeException("Invalid role");
+        }
+        if (!SELF_REGISTERABLE_ROLES.contains(role)) {
+            throw new RuntimeException(
+                    "Role '" + request.getRole() + "' cannot self-register. Contact an administrator.");
         }
 
         if (request.getRole().equals("Student")) {
@@ -68,7 +94,7 @@ public class AuthService {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.valueOf(request.getRole()));
+        user.setRole(role);
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
 

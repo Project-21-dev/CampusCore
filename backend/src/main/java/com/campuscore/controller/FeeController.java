@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class FeeController {
     private final RazorpayPaymentService razorpayPaymentService;
 
     @PostMapping
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> createFee(@RequestBody Map<String, Object> request) {
         try {
             feeService.createFee(request);
@@ -35,6 +37,7 @@ public class FeeController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<FeeDTO>> getAllFees() {
         return ResponseEntity.ok(feeService.getAllFees());
     }
@@ -46,6 +49,7 @@ public class FeeController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> updateFee(@PathVariable Long id, @RequestBody Map<String, Object> request) {
         try {
             feeService.updateFee(id, request);
@@ -100,12 +104,14 @@ public class FeeController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> deleteFee(@PathVariable Long id) {
         feeService.deleteFee(id);
         return ResponseEntity.ok(Map.of("message", "Fee deleted successfully"));
     }
 
     @PostMapping("/remind/{id}")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> sendReminder(@PathVariable Long id) {
         try {
             feeService.sendReminder(id);
@@ -116,6 +122,7 @@ public class FeeController {
     }
 
     @PostMapping("/remind-overdue")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> sendOverdueReminders() {
         int count = feeService.sendOverdueReminders();
         return ResponseEntity.ok(Map.of("message", "Reminders sent", "count", count));

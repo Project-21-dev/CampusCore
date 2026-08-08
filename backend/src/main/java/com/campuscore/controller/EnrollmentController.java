@@ -4,6 +4,7 @@ import com.campuscore.dto.EnrollmentDTO;
 import com.campuscore.service.EnrollmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

@@ -10,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,17 +36,20 @@ public class ResultController {
     private final ReportCardService reportCardService;
 
     @PostMapping("/upload")
+    @PreAuthorize("hasAnyRole('Admin', 'Teacher')")
     public ResponseEntity<?> uploadResult(@RequestBody Map<String, Object> request, Authentication authentication) {
         return resultService.uploadResult(request, authentication);
     }
 
     @PostMapping("/upload-bulk")
+    @PreAuthorize("hasAnyRole('Admin', 'Teacher')")
     public ResponseEntity<?> uploadBulkResults(@RequestBody List<Map<String, Object>> requests, 
                                                 Authentication authentication) {
         return resultService.uploadBulkResults(requests, authentication);
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasAnyRole('Admin', 'Teacher')")
     public ResponseEntity<List<Map<String, Object>>> getAllResults(
             @RequestParam(required = false) String className,
             @RequestParam(required = false) String subject,
@@ -64,11 +68,13 @@ public class ResultController {
     }
 
     @GetMapping("/class/{className}")
+    @PreAuthorize("hasAnyRole('Admin', 'Teacher')")
     public ResponseEntity<List<Map<String, Object>>> getClassResults(@PathVariable String className) {
         return ResponseEntity.ok(resultService.getClassResults(className));
     }
 
     @GetMapping("/statistics/{className}")
+    @PreAuthorize("hasAnyRole('Admin', 'Teacher')")
     public ResponseEntity<Map<String, Object>> getClassStatistics(
             @PathVariable String className,
             @RequestParam(required = false) String subject,
@@ -79,11 +85,13 @@ public class ResultController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('Admin', 'Teacher')")
     public ResponseEntity<?> updateResult(@PathVariable Long id, @RequestBody Map<String, Object> request) {
         return resultService.updateResult(id, request);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('Admin', 'Teacher')")
     public ResponseEntity<?> deleteResult(@PathVariable Long id) {
         return resultService.deleteResult(id);
     }
