@@ -318,7 +318,7 @@ const EnrollmentManagement = () => {
                           key={student.studentId}
                           value={student.studentId}
                         >
-                          {student.username} ({student.rollNo})
+                          {student.fullName || student.username} ({student.rollNo})
                         </option>
                       ))}
                     </select>

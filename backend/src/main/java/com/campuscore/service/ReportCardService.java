@@ -70,7 +70,7 @@ public class ReportCardService {
                     .setMarginBottom(20);
             addTableHeader(studentTable, "Student Information");
             addTableRow(studentTable, "Student Name:",
-                    student.getUser() != null ? student.getUser().getUsername() : "N/A");
+                    student.getDisplayName());
             addTableRow(studentTable, "Roll Number:", student.getRollNo());
             addTableRow(studentTable, "Class:", student.getClassName());
             addTableRow(studentTable, "Attendance:", String.format("%.1f%%", attendancePct));

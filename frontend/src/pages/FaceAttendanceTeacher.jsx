@@ -11,14 +11,37 @@ const FaceAttendanceTeacher = () => {
   const [students, setStudents] = useState([])
   const [attendance, setAttendance] = useState([])
   const [loading, setLoading] = useState(false)
+  const [classLoading, setClassLoading] = useState(true)
+  const [classError, setClassError] = useState('')
 
   useEffect(() => {
     const loadClasses = async () => {
       try {
-        const response = await api.get('/user/classes')
-        setClasses(Array.isArray(response.data) ? response.data : [])
+        setClassError('')
+        const [classResult, studentsResult] = await Promise.allSettled([
+          api.get('/user/classes'),
+          api.get('/user/students')
+        ])
+
+        let nextClasses = classResult.status === 'fulfilled' && Array.isArray(classResult.value.data)
+          ? classResult.value.data.filter(Boolean)
+          : []
+
+        // Fallback: derive classes from the student list if the dedicated endpoint is empty.
+        if (nextClasses.length === 0 && studentsResult.status === 'fulfilled' && Array.isArray(studentsResult.value.data)) {
+          nextClasses = [...new Set(studentsResult.value.data.map(student => student.className).filter(Boolean))]
+        }
+
+        nextClasses.sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true }))
+        setClasses(nextClasses)
+        if (nextClasses.length === 0) {
+          setClassError('No classes are available. Add or approve students with a class before starting attendance.')
+        }
       } catch (error) {
         console.error(error)
+        setClassError(error.response?.data?.message || 'Could not load classes.')
+      } finally {
+        setClassLoading(false)
       }
     }
     loadClasses()
@@ -95,7 +118,8 @@ const FaceAttendanceTeacher = () => {
     }
   }
 
-  const today = new Date().toISOString().split('T')[0]
+  const now = new Date()
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   const attendanceMap = useMemo(() => {
     const map = {}
     attendance
@@ -126,6 +150,8 @@ const FaceAttendanceTeacher = () => {
         Present attendance is recorded automatically; when the session is finalized, students who did not check in are marked Absent.
       </div>
 
+      {classError && <div className="alert alert-warning">{classError}</div>}
+
       <div className="card shadow-sm mb-4">
         <div className="card-body">
           <div className="row g-3 align-items-end">
@@ -136,7 +162,7 @@ const FaceAttendanceTeacher = () => {
                 value={selectedClass}
                 onChange={event => setSelectedClass(event.target.value)}
               >
-                <option value="">Select class</option>
+                <option value="">{classLoading ? 'Loading classes...' : 'Select class'}</option>
                 {classes.map(className => (
                   <option key={className} value={className}>{className}</option>
                 ))}
@@ -200,7 +226,7 @@ const FaceAttendanceTeacher = () => {
                   return (
                     <tr key={student.studentId}>
                       <td>{student.rollNo}</td>
-                      <td>{student.username}</td>
+                      <td>{student.fullName || student.username}</td>
                       <td>
                         {status ? (
                           <span className={`badge ${status === 'Present' ? 'bg-success' : 'bg-danger'}`}>{status}</span>

@@ -26,6 +26,21 @@ public class Student {
     @Column(nullable = false)
     private String className;
 
+    @Column(length = 150)
+    private String fullName;
+
     private String email;
     private String phone;
+
+    @Transient
+    public String getDisplayName() {
+        if (fullName != null && !fullName.isBlank()) {
+            return fullName.trim();
+        }
+        if (user != null && user.getUsername() != null && !user.getUsername().isBlank()) {
+            return user.getUsername();
+        }
+        return rollNo != null ? rollNo : "Student";
+    }
 }
+

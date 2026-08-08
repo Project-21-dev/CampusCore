@@ -11,6 +11,7 @@ const AdminManageStudents = () => {
   const [showModal, setShowModal] = useState(false)
   const [editingStudent, setEditingStudent] = useState(null)
   const [formData, setFormData] = useState({
+    fullName: '',
     username: '',
     password: '',
     email: '',
@@ -73,6 +74,7 @@ const AdminManageStudents = () => {
       const response = await api.get(`/user/students/${studentId}`)
       const student = response.data
       setFormData({
+        fullName: student.fullName || '',
         username: student.username,
         password: '',
         email: student.email || '',
@@ -104,13 +106,14 @@ const AdminManageStudents = () => {
       fetchStudents()
       setTimeout(() => setMessage({ type: '', text: '' }), 5000)
     } catch (error) {
-      setMessage({ type: 'danger', text: 'Failed to delete student' })
+      setMessage({ type: 'danger', text: error.response?.data?.message || 'Failed to delete student' })
       setTimeout(() => setMessage({ type: '', text: '' }), 5000)
     }
   }
 
   const resetForm = () => {
     setFormData({
+      fullName: '',
       username: '',
       password: '',
       email: '',
@@ -230,7 +233,7 @@ const AdminManageStudents = () => {
                 students.map((student) => (
                   <tr key={student.studentId}>
                     <td><span className="badge bg-light text-dark fw-bold">{student.rollNo}</span></td>
-                    <td className="fw-medium">{student.username}</td>
+                    <td className="fw-medium">{student.fullName || student.username}</td>
                     <td>{student.className}</td>
                     <td>{student.email || <span className="text-muted small">N/A</span>}</td>
                     <td>{student.phone || <span className="text-muted small">N/A</span>}</td>
@@ -281,6 +284,17 @@ const AdminManageStudents = () => {
                 <div className="modal-body p-4">
                   <div className="row">
                     <div className="col-md-6 mb-3">
+                      <label className="form-label small text-muted text-uppercase fw-bold">Student Name *</label>
+                      <input
+                        type="text"
+                        className="form-control border-0 bg-light"
+                        value={formData.fullName}
+                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                        required
+                        placeholder="Enter student's full name"
+                      />
+                    </div>
+                    <div className="col-md-6 mb-3">
                       <label className="form-label small text-muted text-uppercase fw-bold">Username *</label>
                       <input
                         type="text"
@@ -288,7 +302,7 @@ const AdminManageStudents = () => {
                         value={formData.username}
                         onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                         required
-                        placeholder="Enter full name"
+                        placeholder="Login username"
                       />
                     </div>
                     <div className="col-md-6 mb-3">

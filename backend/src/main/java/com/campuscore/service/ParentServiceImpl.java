@@ -1,14 +1,18 @@
 package com.campuscore.service;
 
 import com.campuscore.dto.ChildSummaryDTO;
+import com.campuscore.dto.ParentManagementDTO;
 import com.campuscore.entity.Attendance;
 import com.campuscore.entity.Fee;
 import com.campuscore.entity.ParentStudent;
 import com.campuscore.entity.Result;
+import com.campuscore.entity.Role;
+import com.campuscore.entity.User;
 import com.campuscore.entity.Student;
 import com.campuscore.repository.AttendanceRepository;
 import com.campuscore.repository.FeeRepository;
 import com.campuscore.repository.ParentStudentRepository;
+import com.campuscore.repository.NotificationRepository;
 import com.campuscore.repository.ResultRepository;
 import com.campuscore.repository.StudentRepository;
 import com.campuscore.repository.UserRepository;
@@ -31,6 +35,7 @@ public class ParentServiceImpl implements ParentService {
     private final AttendanceRepository attendanceRepository;
     private final FeeRepository feeRepository;
     private final ResultRepository resultRepository;
+    private final NotificationRepository notificationRepository;
 
     @Override
     public List<ChildSummaryDTO> getChildrenForParent(Long parentUserId) {
@@ -56,7 +61,7 @@ public class ParentServiceImpl implements ParentService {
             summaries.add(new ChildSummaryDTO(
                     link.getId(),
                     student.getStudentId(),
-                    student.getUser() != null ? student.getUser().getUsername() : null,
+                    student.getDisplayName(),
                     student.getRollNo(),
                     student.getClassName(),
                     link.getRelation(),
@@ -74,9 +79,7 @@ public class ParentServiceImpl implements ParentService {
         com.campuscore.entity.User parent = userRepository.findById(parentUserId)
                 .orElseThrow(() -> new RuntimeException("Parent account not found"));
 
-        Student student = studentRepository.findAll().stream()
-                .filter(s -> childRollNo.equalsIgnoreCase(s.getRollNo()))
-                .findFirst()
+        Student student = studentRepository.findByRollNo(childRollNo)
                 .orElseThrow(() -> new RuntimeException("No student found with roll number " + childRollNo));
 
         if (parentStudentRepository.existsByParentUserIdAndStudentStudentId(parentUserId, student.getStudentId())) {
@@ -112,7 +115,7 @@ public class ParentServiceImpl implements ParentService {
 
         Map<String, Object> response = new HashMap<>();
         response.put("studentId", student.getStudentId());
-        response.put("name", student.getUser() != null ? student.getUser().getUsername() : null);
+        response.put("name", student.getDisplayName());
         response.put("rollNo", student.getRollNo());
         response.put("className", student.getClassName());
         response.put("attendance", attendanceRepository.findByStudentStudentId(studentId));
@@ -120,6 +123,69 @@ public class ParentServiceImpl implements ParentService {
         response.put("results", resultRepository.findByStudentStudentId(studentId));
 
         return response;
+    }
+
+
+    @Override
+    public List<ParentManagementDTO> getAllParentsForAdmin() {
+        return userRepository.findByRole(Role.Parent).stream()
+                .map(parent -> new ParentManagementDTO(
+                        parent.getUserId(),
+                        parent.getUsername(),
+                        parent.getEmail(),
+                        parent.getPhone(),
+                        getChildrenForParent(parent.getUserId())))
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public void unlinkChildByAdmin(Long parentUserId, Long linkId) {
+        User parent = userRepository.findById(parentUserId)
+                .orElseThrow(() -> new RuntimeException("Parent account not found"));
+
+        if (parent.getRole() != Role.Parent) {
+            throw new RuntimeException("Selected user is not a Parent account");
+        }
+
+        ParentStudent link = parentStudentRepository.findById(linkId)
+                .orElseThrow(() -> new RuntimeException("Parent-child link not found"));
+
+        if (!link.getParent().getUserId().equals(parentUserId)) {
+            throw new RuntimeException("This child link does not belong to the selected parent");
+        }
+
+        parentStudentRepository.delete(link);
+    }
+
+    @Override
+    @Transactional
+    public void deleteParentByAdmin(Long parentUserId) {
+        User parent = userRepository.findById(parentUserId)
+                .orElseThrow(() -> new RuntimeException("Parent account not found"));
+
+        if (parent.getRole() != Role.Parent) {
+            throw new RuntimeException("Selected user is not a Parent account");
+        }
+
+        // Parent and Student are independent accounts. Deleting a parent only
+        // removes the links to children; it never deletes any Student record.
+        List<ParentStudent> links = parentStudentRepository.findByParentUserId(parentUserId);
+        if (!links.isEmpty()) {
+            parentStudentRepository.deleteAll(links);
+            parentStudentRepository.flush();
+        }
+
+        // Notifications reference users directly, so remove the parent's own
+        // notifications before deleting the parent user account.
+        var notifications = notificationRepository.findByUserUserIdOrderByCreatedAtDesc(parentUserId);
+        if (!notifications.isEmpty()) {
+            notificationRepository.deleteAll(notifications);
+            notificationRepository.flush();
+        }
+
+        userRepository.delete(parent);
+        userRepository.flush();
     }
 
     private double round2(double value) {

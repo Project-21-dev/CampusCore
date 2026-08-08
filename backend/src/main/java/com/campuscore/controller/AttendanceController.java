@@ -1,5 +1,7 @@
 package com.campuscore.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import com.campuscore.dto.AttendanceDTO;
 import com.campuscore.service.AttendanceService;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +14,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/attendance")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class AttendanceController {
 
     private final AttendanceService attendanceService;
@@ -52,6 +53,7 @@ public class AttendanceController {
     }
 
     @GetMapping("/student/{studentId}")
+    @PreAuthorize("@securityAccess.canAccessStudent(authentication, #studentId)")
     public ResponseEntity<List<AttendanceDTO>> getStudentAttendance(@PathVariable Long studentId) {
         return ResponseEntity.ok(attendanceService.getStudentAttendance(studentId));
     }

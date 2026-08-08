@@ -592,3 +592,294 @@ textarea.form-control:focus {
     padding: 22px !important;
   }
 }
+
+/* CampusCore premium login */
+.campus-login-page {
+  min-height: calc(100vh - 78px);
+  padding: 34px 0 48px;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(53, 95, 146, .11), transparent 28%),
+    linear-gradient(180deg, #fffdf9 0%, #f7f9fc 100%);
+}
+
+.campus-login-shell {
+  width: min(100%, 1360px);
+  min-height: 720px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(430px, .88fr);
+  overflow: hidden;
+  border: 1px solid rgba(30, 54, 82, .10);
+  border-radius: 30px;
+  background: #fff;
+  box-shadow: 0 30px 80px rgba(31, 47, 70, .14);
+}
+
+.campus-login-hero {
+  position: relative;
+  min-height: 720px;
+  background-position: center;
+  background-size: cover;
+  isolation: isolate;
+}
+
+.campus-login-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(8, 28, 52, .96) 0%, rgba(8, 28, 52, .82) 42%, rgba(8, 28, 52, .34) 100%),
+    linear-gradient(0deg, rgba(7, 23, 43, .80), transparent 55%);
+}
+
+.campus-login-hero-content {
+  min-height: 720px;
+  padding: clamp(32px, 4.5vw, 64px);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.campus-login-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  color: #fff;
+  text-decoration: none;
+}
+.campus-login-brand:hover { color: #fff; }
+.campus-login-brand-mark {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f4b942, #dc8e1c);
+  color: #102a48;
+  font-size: 1.5rem;
+  box-shadow: 0 10px 28px rgba(244, 185, 66, .24);
+}
+.campus-login-brand > span:last-child { display: grid; line-height: 1.15; }
+.campus-login-brand strong { font-size: 1.35rem; letter-spacing: -.02em; }
+.campus-login-brand small { margin-top: 5px; color: rgba(255,255,255,.66); font-size: .76rem; }
+
+.campus-login-copy { max-width: 650px; margin: auto 0; padding: 50px 0; }
+.campus-login-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 13px;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 999px;
+  background: rgba(255,255,255,.09);
+  color: rgba(255,255,255,.86);
+  font-size: .78rem;
+  font-weight: 800;
+  backdrop-filter: blur(8px);
+}
+.campus-login-eyebrow i { color: #f4b942; }
+.campus-login-copy h1 {
+  max-width: 620px;
+  margin: 22px 0 18px;
+  color: #fff;
+  font-size: clamp(2.55rem, 4.4vw, 4.65rem);
+  line-height: 1.03;
+  letter-spacing: -.055em;
+  font-weight: 800;
+}
+.campus-login-copy h1 span { color: #f4b942; }
+.campus-login-copy p {
+  max-width: 570px;
+  margin: 0;
+  color: rgba(255,255,255,.78);
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+
+.campus-login-role-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 18px;
+  background: rgba(7, 28, 51, .76);
+  backdrop-filter: blur(12px);
+}
+.campus-login-role-grid > div {
+  min-width: 0;
+  padding: 18px 15px;
+  text-align: center;
+  border-right: 1px solid rgba(255,255,255,.12);
+}
+.campus-login-role-grid > div:last-child { border-right: 0; }
+.campus-login-role-grid i { display: block; margin-bottom: 8px; color: #f4b942; font-size: 1.35rem; }
+.campus-login-role-grid strong { display: block; font-size: .86rem; }
+.campus-login-role-grid span { display: block; margin-top: 4px; color: rgba(255,255,255,.58); font-size: .68rem; line-height: 1.35; }
+
+.campus-login-form-side {
+  min-height: 720px;
+  display: grid;
+  place-items: center;
+  padding: clamp(34px, 5vw, 72px);
+  background: linear-gradient(180deg, #ffffff, #fbfcff);
+}
+.campus-login-card { width: min(100%, 475px); }
+.campus-login-heading { margin-bottom: 34px; text-align: center; }
+.campus-login-signin-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: #eef5ff;
+  color: #2f64a0;
+  font-size: 1.6rem;
+}
+.campus-login-heading h2 { margin: 18px 0 7px; color: #173454; font-size: 2.2rem; font-weight: 800; letter-spacing: -.035em; }
+.campus-login-heading p { margin: 0; color: #7a8798; }
+
+.campus-login-input { position: relative; }
+.campus-login-input > i:first-child {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  color: #8b98aa;
+}
+.campus-login-input .form-control {
+  min-height: 56px;
+  padding-left: 46px;
+  border: 1px solid #dce4ed;
+  border-radius: 14px;
+  background: #fbfcff;
+}
+.campus-login-password .form-control { padding-right: 48px; }
+.campus-password-toggle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  border: 0;
+  background: transparent;
+  color: #8b98aa;
+  padding: 5px;
+}
+
+.campus-login-submit {
+  width: 100%;
+  min-height: 56px;
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 14px;
+  color: #fff;
+  background: linear-gradient(135deg, #315f94, #1e4777);
+  box-shadow: 0 14px 30px rgba(30, 71, 119, .22);
+  font-weight: 800;
+}
+.campus-login-submit:hover { color: #fff; transform: translateY(-1px); }
+
+.campus-login-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 28px 0 20px;
+  color: #98a2b2;
+  font-size: .8rem;
+}
+.campus-login-divider::before,
+.campus-login-divider::after { content: ''; flex: 1; height: 1px; background: #e7ebf0; }
+
+.campus-parent-account-btn {
+  width: 100%;
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid #8bb3e2;
+  border-radius: 14px;
+  color: #2e619a;
+  background: #fff;
+  font-weight: 800;
+}
+.campus-parent-account-btn:hover { color: #214f84; background: #f5f9ff; border-color: #5d91cc; }
+
+.campus-login-admission-link {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  color: #8a96a6;
+  font-size: .84rem;
+}
+.campus-login-admission-link a { color: #2f64a0; font-weight: 800; text-decoration: none; }
+
+.campus-login-security-note {
+  margin-top: 28px;
+  padding: 15px 17px;
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  border: 1px solid #e4e9ef;
+  border-radius: 14px;
+  color: #6c7889;
+  background: #f8fafc;
+  font-size: .8rem;
+  line-height: 1.5;
+}
+.campus-login-security-note i { color: #2f64a0; font-size: 1.05rem; }
+
+/* Branded SweetAlert dialogs */
+.campus-swal-popup {
+  width: min(92vw, 460px) !important;
+  border-radius: 22px !important;
+  padding: 1.4rem 1.5rem 1.55rem !important;
+  box-shadow: 0 28px 80px rgba(18, 34, 55, .22) !important;
+}
+.campus-swal-popup .swal2-title { color: #203a58; font-size: 1.55rem; font-weight: 800; }
+.campus-swal-popup .swal2-actions { gap: 10px; margin-top: 1.35rem; }
+.campus-swal-delete,
+.campus-swal-cancel,
+.campus-swal-primary {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 11px;
+  font-weight: 800;
+}
+.campus-swal-delete { color: #fff; background: #dc3545; }
+.campus-swal-delete:hover { background: #c62d3b; }
+.campus-swal-cancel { color: #445166; background: #edf1f5; }
+.campus-swal-cancel:hover { background: #e1e7ed; }
+.campus-swal-primary { color: #fff; background: #315f94; }
+
+@media (max-width: 1199.98px) {
+  .campus-login-shell { grid-template-columns: 1fr 1fr; }
+  .campus-login-role-grid { grid-template-columns: 1fr 1fr; }
+  .campus-login-role-grid > div:nth-child(2) { border-right: 0; }
+  .campus-login-role-grid > div:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,.12); }
+}
+
+@media (max-width: 991.98px) {
+  .campus-login-shell { grid-template-columns: 1fr; }
+  .campus-login-hero, .campus-login-hero-content { min-height: 590px; }
+  .campus-login-form-side { min-height: auto; }
+}
+
+@media (max-width: 575.98px) {
+  .campus-login-page { padding: 18px 0 28px; }
+  .campus-login-shell { border-radius: 20px; }
+  .campus-login-hero { display: none; }
+  .campus-login-form-side { padding: 34px 20px; }
+  .campus-login-heading h2 { font-size: 1.9rem; }
+}

@@ -1,5 +1,7 @@
 package com.campuscore.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +11,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +29,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/result")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class ResultController {
 
     private final ResultServiceImpl resultService;
@@ -58,6 +58,7 @@ public class ResultController {
     }
 
     @GetMapping("/student/{studentId}")
+    @PreAuthorize("@securityAccess.canAccessStudent(authentication, #studentId)")
     public ResponseEntity<List<Map<String, Object>>> getStudentResults(@PathVariable Long studentId) {
         return ResponseEntity.ok(resultService.getStudentResults(studentId));
     }
@@ -88,6 +89,7 @@ public class ResultController {
     }
 
     @GetMapping("/report-card/{studentId}")
+    @PreAuthorize("@securityAccess.canAccessStudent(authentication, #studentId)")
     public ResponseEntity<byte[]> downloadReportCard(@PathVariable Long studentId,
             @RequestParam(required = false) String academicYear) {
         try {

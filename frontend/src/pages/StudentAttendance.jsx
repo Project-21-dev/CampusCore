@@ -68,7 +68,7 @@ const StudentAttendance = () => {
           My Attendance
         </h1>
         <span className="badge bg-info fs-6">
-          {user?.username}
+          {user?.displayName || user?.username}
         </span>
       </div>
 

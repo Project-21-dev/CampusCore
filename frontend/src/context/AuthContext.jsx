@@ -73,28 +73,15 @@ export const AuthProvider = ({ children }) => {
   const register = async (registerData) => {
     try {
       const response = await api.post('/auth/register', registerData)
-
-
       if (response.data.success) {
-        const { token, ...userData } = response.data
-
-
-        if (token) {
-          localStorage.setItem('token', token)
-          localStorage.setItem('user', JSON.stringify(userData))
-          api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-          setUser(userData)
-          return { success: true, user: userData }
-        }
-
-
-        return { success: true, user: userData }
-      } else {
-
-        return {
-          success: false,
-          message: response.data.message || 'Registration failed. Please try again.'
-        }
+        // Public registration creates the Parent account but does not keep the
+        // returned registration token as an authenticated browser session.
+        // The parent signs in normally after account creation.
+        return { success: true, user: response.data }
+      }
+      return {
+        success: false,
+        message: response.data.message || 'Registration failed. Please try again.'
       }
     } catch (error) {
       console.error('Registration error:', error)

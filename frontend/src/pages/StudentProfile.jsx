@@ -64,7 +64,7 @@ const StudentProfile = () => {
                 <tbody>
                   <tr>
                     <td><strong>Name:</strong></td>
-                    <td>{profile.student.username}</td>
+                    <td>{profile.student.fullName || profile.student.username}</td>
                   </tr>
                   <tr>
                     <td><strong>Roll Number:</strong></td>

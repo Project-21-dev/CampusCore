@@ -1,6 +1,7 @@
 package com.campuscore.controller;
 
 import com.campuscore.dto.AuthResponse;
+import com.campuscore.dto.ChangePasswordRequest;
 import com.campuscore.dto.LoginRequest;
 import com.campuscore.dto.RegisterRequest;
 import com.campuscore.service.AuthService;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final AuthService authService;
@@ -26,6 +26,13 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestBody ChangePasswordRequest request) {
+        return ResponseEntity.ok(authService.changePassword(authorization, request));
     }
 
     @GetMapping("/health")

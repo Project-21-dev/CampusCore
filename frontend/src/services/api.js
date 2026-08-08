@@ -1,83 +1,12 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://localhost:9090/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:9090/api',
   headers: {
     'Content-Type': 'application/json'
   },
-  timeout: 5000
+  timeout: 10000
 })
-
-const mockAPI = {
-  register: (userData) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          data: {
-            success: true,
-            message: 'Registration successful',
-            user: {
-              id: Date.now(),
-              username: userData.username,
-              role: userData.role,
-              email: userData.email
-            }
-          }
-        })
-      }, 1000)
-    })
-  },
-  login: (credentials) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          data: {
-            success: true,
-            message: 'Login successful',
-            token: 'mock-jwt-token',
-            user: {
-              id: 1,
-              username: credentials.username,
-              role: 'Student',
-              email: 'user@example.com'
-            }
-          }
-        })
-      }, 1000)
-    })
-  }
-}
-
-const checkBackend = async () => {
-  try {
-    await api.get('/health', { timeout: 2000 })
-    return true
-  } catch {
-    return false
-  }
-}
-
-const enhancedAPI = {
-  ...api,
-  post: async (url, data, config = {}) => {
-    try {
-      const requestConfig = { ...config }
-      if (data instanceof FormData) {
-        requestConfig.headers = { ...(config.headers || {}) }
-        delete requestConfig.headers['Content-Type']
-      }
-      return await api.post(url, data, requestConfig)
-    } catch (error) {
-      if (error.code === 'ERR_NETWORK' || error.code === 'ECONNREFUSED') {
-        console.warn('Backend not available, using mock API')
-        if (url === '/auth/register') return mockAPI.register(data)
-        if (url === '/auth/login') return mockAPI.login(data)
-      }
-      throw error
-    }
-  }
-}
-
 
 api.interceptors.request.use(
   (config) => {
@@ -90,11 +19,8 @@ api.interceptors.request.use(
     }
     return config
   },
-  (error) => {
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
-
 
 api.interceptors.response.use(
   (response) => response,
@@ -102,11 +28,12 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-      window.location.href = '/login'
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(error)
   }
 )
 
-export default enhancedAPI
-
+export default api

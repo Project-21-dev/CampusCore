@@ -17,6 +17,7 @@ import FaceAttendanceTeacher from './pages/FaceAttendanceTeacher'
 import Results from './pages/Results'
 import AdminManageStudents from './pages/AdminManageStudents'
 import AdminManageTeachers from './pages/AdminManageTeachers'
+import AdminManageParents from './pages/AdminManageParents'
 import AdminManageAttendance from './pages/AdminManageAttendance'
 import StudentProfile from './pages/StudentProfile'
 import TeacherProfile from './pages/TeacherProfile'
@@ -27,8 +28,10 @@ import CheckAdmissionStatus from './pages/CheckAdmissionStatus'
 import AdminManageAdmissions from './pages/AdminManageAdmissions'
 import AnalyticsDashboard from './pages/AnalyticsDashboard'
 import ParentDashboard from './pages/ParentDashboard'
+import ParentChildRecords from './pages/ParentChildRecords'
 import Announcements from './pages/Announcements'
 import AuditLogViewer from './pages/AuditLogViewer'
+import ChangePassword from './pages/ChangePassword'
 
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth()
@@ -80,7 +83,7 @@ function AppRoutes() {
       <Route
         path="/teacher/dashboard"
         element={
-          <PrivateRoute allowedRoles={['Teacher', 'Admin']}>
+          <PrivateRoute allowedRoles={['Teacher']}>
             <><Header /><TeacherDashboard /><Footer /></>
           </PrivateRoute>
         }
@@ -150,6 +153,15 @@ function AppRoutes() {
       />
 
       <Route
+        path="/admin/parents"
+        element={
+          <PrivateRoute allowedRoles={['Admin']}>
+            <><Header /><AdminManageParents /><Footer /></>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
         path="/admin/attendance"
         element={
           <PrivateRoute allowedRoles={['Admin']}>
@@ -197,7 +209,7 @@ function AppRoutes() {
       <Route
         path="/fees"
         element={
-          <PrivateRoute>
+          <PrivateRoute allowedRoles={['Admin', 'Student', 'Parent']}>
             <><Header /><FeeManagement /><Footer /></>
           </PrivateRoute>
         }
@@ -212,11 +224,49 @@ function AppRoutes() {
         }
       />
 
+
+      <Route
+        path="/parent/attendance"
+        element={
+          <PrivateRoute allowedRoles={['Parent']}>
+            <><Header /><ParentChildRecords mode="attendance" /><Footer /></>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/parent/results"
+        element={
+          <PrivateRoute allowedRoles={['Parent']}>
+            <><Header /><ParentChildRecords mode="results" /><Footer /></>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/parent/analysis"
+        element={
+          <PrivateRoute allowedRoles={['Parent']}>
+            <><Header /><ParentChildRecords mode="analysis" /><Footer /></>
+          </PrivateRoute>
+        }
+      />
+
       <Route
         path="/parent/dashboard"
         element={
           <PrivateRoute allowedRoles={['Parent']}>
             <><Header /><ParentDashboard /><Footer /></>
+          </PrivateRoute>
+        }
+      />
+
+
+      <Route
+        path="/change-password"
+        element={
+          <PrivateRoute>
+            <><Header /><ChangePassword /><Footer /></>
           </PrivateRoute>
         }
       />

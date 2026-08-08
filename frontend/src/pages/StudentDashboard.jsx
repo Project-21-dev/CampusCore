@@ -18,6 +18,7 @@ const StudentDashboard = () => {
   const [showNotifications, setShowNotifications] = useState(false)
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [aiPrediction, setAiPrediction] = useState(null)
+  const [feeSummary, setFeeSummary] = useState({ total: 0, paid: 0, due: 0, nextDueDate: null })
 
   useEffect(() => {
     if (user?.studentId) {
@@ -28,19 +29,30 @@ const StudentDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [attendanceResult, resultsResult, aiResult] = await Promise.allSettled([
+      const [attendanceResult, resultsResult, aiResult, feesResult] = await Promise.allSettled([
         api.get(`/attendance/student/${user.studentId}`),
         api.get(`/result/student/${user.studentId}`),
-        api.get('/analytics/at-risk-students')
+        api.get(`/analytics/student/${user.studentId}/risk`),
+        api.get(`/studentmanagement/fee/student/${user.studentId}`)
       ])
 
       const attendanceRes = attendanceResult.status === 'fulfilled' ? attendanceResult.value : { data: [] }
       const resultsRes = resultsResult.status === 'fulfilled' ? resultsResult.value : { data: [] }
 
       if (aiResult.status === 'fulfilled') {
-        setAiPrediction(
-          aiResult.value.data.find((prediction) => prediction.studentId === user.studentId) || null
-        )
+        setAiPrediction(aiResult.value.data || null)
+      }
+
+      if (feesResult.status === 'fulfilled') {
+        const feeRows = Array.isArray(feesResult.value.data) ? feesResult.value.data : []
+        const paid = feeRows.filter((fee) => fee.status === 'Paid').reduce((sum, fee) => sum + Number(fee.amount || 0), 0)
+        const pendingRows = feeRows.filter((fee) => fee.status !== 'Paid')
+        const due = pendingRows.reduce((sum, fee) => sum + Number(fee.amount || 0), 0)
+        const nextDueDate = pendingRows
+          .map((fee) => fee.dueDate)
+          .filter(Boolean)
+          .sort()[0] || null
+        setFeeSummary({ total: paid + due, paid, due, nextDueDate })
       }
 
       // Ensure data is an array, default to empty array if not
@@ -163,7 +175,7 @@ const StudentDashboard = () => {
           <Link to={`/student/profile/${user?.studentId}`} className="btn btn-primary me-2">
             <i className="bi bi-person-badge me-2"></i>View Profile
           </Link>
-          <span className="badge bg-info">Welcome, {user?.username}!</span>
+          <span className="badge bg-info">Welcome, {user?.displayName || user?.username}!</span>
         </div>
       </div>
 
@@ -203,7 +215,7 @@ const StudentDashboard = () => {
 
       {/* AI-guided Improvement Plan */}
       {aiPrediction && (
-        <div className="card shadow-sm mb-4">
+        <div className="card shadow-sm mb-4" id="analysis">
           <div className="card-header bg-info text-white">
             <h5 className="mb-0"><i className="bi bi-stars me-2"></i>Your Improvement Plan</h5>
           </div>
@@ -252,7 +264,9 @@ const StudentDashboard = () => {
             <div className="card bg-warning text-white h-100">
               <div className="card-body text-center">
                 <i className="bi bi-cash-coin" style={{ fontSize: '48px' }}></i>
-                <h6 className="mt-3">Fee Status</h6>
+                <h6 className="mt-3 mb-1">Fee Status</h6>
+                <div className="small">Due: ₹{feeSummary.due.toFixed(2)}</div>
+                {feeSummary.nextDueDate && <div className="small">Next: {feeSummary.nextDueDate}</div>}
               </div>
             </div>
           </Link>

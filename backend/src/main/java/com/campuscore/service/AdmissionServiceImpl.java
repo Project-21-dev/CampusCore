@@ -130,17 +130,14 @@ public class AdmissionServiceImpl implements AdmissionService {
         if (becomingApproved) {
             Map<String, Object> accountInfo = provisionStudentAccount(admission);
             response.putAll(accountInfo);
-        }
-
-        admissionRepository.save(admission);
-
-        if ("Approved".equalsIgnoreCase(statusUpdate.getStatus()) && !becomingApproved) {
+        } else if ("Approved".equalsIgnoreCase(statusUpdate.getStatus())) {
             response.put("studentAccountCreated", false);
             response.put("rollNumber", admission.getRollNumber());
             response.put("loginEmail", admission.getEmail());
-            response.put("message", "Admission status updated. Existing student account was left unchanged.");
+            response.put("message", "Admission is already approved. Existing student account was left unchanged.");
         }
 
+        admissionRepository.save(admission);
         return response;
     }
 
@@ -187,6 +184,7 @@ public class AdmissionServiceImpl implements AdmissionService {
 
         Student student = new Student();
         student.setUser(user);
+        student.setFullName((admission.getFirstName() + " " + admission.getLastName()).trim());
         student.setRollNo(rollNumber);
         student.setClassName(admission.getAppliedClass());
         student.setEmail(admission.getEmail());

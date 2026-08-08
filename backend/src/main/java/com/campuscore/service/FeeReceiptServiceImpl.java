@@ -76,7 +76,7 @@ public class FeeReceiptServiceImpl implements FeeReceiptService {
                     .setMarginBottom(20);
 
             addTableHeader(studentTable, "Student Information");
-            addTableRow(studentTable, "Student Name:", fee.getStudent().getUser().getUsername());
+            addTableRow(studentTable, "Student Name:", fee.getStudent().getDisplayName());
             addTableRow(studentTable, "Roll Number:", fee.getStudent().getRollNo());
             addTableRow(studentTable, "Class:", fee.getStudent().getClassName());
             addTableRow(studentTable, "Email:",

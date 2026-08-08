@@ -28,6 +28,9 @@ public class FaceVerificationClient {
     @Value("${ai.service.base-url:http://localhost:8000}")
     private String aiServiceBaseUrl;
 
+    @Value("${ai.service.api-key:campuscore-local-ai-key-change-me}")
+    private String aiServiceApiKey;
+
     public FaceVerificationResponse enroll(Long studentId, List<MultipartFile> images) {
         if (images == null || images.size() < 3) {
             throw new RuntimeException("Please capture at least 3 face samples.");
@@ -51,14 +54,20 @@ public class FaceVerificationClient {
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> enrollmentStatus(Long studentId) {
-        return restTemplate.getForObject(
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Internal-Api-Key", aiServiceApiKey);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+        return restTemplate.exchange(
                 aiServiceBaseUrl + "/face/enrollment/" + studentId,
-                Map.class);
+                org.springframework.http.HttpMethod.GET,
+                entity,
+                Map.class).getBody();
     }
 
     private FaceVerificationResponse postMultipart(String path, MultiValueMap<String, Object> body) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.set("X-Internal-Api-Key", aiServiceApiKey);
         HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(body, headers);
 
         FaceVerificationResponse response = restTemplate.postForObject(

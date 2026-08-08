@@ -127,7 +127,7 @@ const Results = () => {
 
     const initialResults = classStudents.map(student => ({
       studentId: student.studentId,
-      studentName: student.username,
+      studentName: student.fullName || student.username,
       rollNo: student.rollNo,
       results: subjects.map(subject => ({
         subject,
@@ -889,7 +889,7 @@ const Results = () => {
                       <option value="">Select Student</option>
                       {students.map((student) => (
                         <option key={student.studentId} value={student.studentId}>
-                          {student.username} - {student.rollNo} ({student.className})
+                          {student.fullName || student.username} - {student.rollNo} ({student.className})
                         </option>
                       ))}
                     </select>

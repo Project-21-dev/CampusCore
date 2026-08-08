@@ -37,9 +37,7 @@ public class EmailService {
 //                ? student.getUser().getUsername()
 //                : "Parent";
 
-        String childName = (student.getUser() != null && student.getUser().getUsername() != null)
-                ? student.getUser().getUsername()
-                : (student.getRollNo() != null ? student.getRollNo() : "Student");
+        String childName = student.getDisplayName();
 
         String formattedDate = date != null ? date.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                 : "";
@@ -98,7 +96,7 @@ public class EmailService {
                 "<p><strong>Temporary Password:</strong> <span style='font-family: monospace; font-size: 16px;'>"
                 + escapeHtml(temporaryPassword) + "</span></p>" +
                 "<p>Your student account has already been created. You do not need to register separately.</p>" +
-                "<p>Please keep this password private and change it after login when password-change functionality is available.</p>"
+                "<p>Please keep this password private. After signing in, use the Change Password option from your account menu to set your own permanent password.</p>"
                 +
                 "</div>" +
                 "<p>If you have any questions, please feel free to contact the school administration.</p>" +
@@ -135,9 +133,7 @@ public class EmailService {
             return;
         }
 
-        String childName = (student.getUser() != null && student.getUser().getUsername() != null)
-                ? student.getUser().getUsername()
-                : (student.getRollNo() != null ? student.getRollNo() : "Student");
+        String childName = student.getDisplayName();
 
         String formattedDue = dueDate != null
                 ? dueDate.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))

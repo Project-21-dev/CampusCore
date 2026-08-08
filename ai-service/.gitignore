@@ -26,3 +26,5 @@ htmlcov/
 Thumbs.db
 # Local biometric enrollment data - never commit
 /data/faces/
+.venv/
+data/faces/

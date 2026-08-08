@@ -24,6 +24,8 @@ public class StudentServiceImpl implements StudentService {
     private final AttendanceRepository attendanceRepository;
     private final FeeRepository feeRepository;
     private final ResultRepository resultRepository;
+    private final ParentStudentRepository parentStudentRepository;
+    private final NotificationRepository notificationRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
@@ -36,6 +38,7 @@ public class StudentServiceImpl implements StudentService {
                     if (student.getUser() != null) {
                         dto.setUsername(student.getUser().getUsername());
                     }
+                    dto.setFullName(student.getDisplayName());
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -48,14 +51,36 @@ public class StudentServiceImpl implements StudentService {
         if (student.getUser() != null) {
             dto.setUsername(student.getUser().getUsername());
         }
+        dto.setFullName(student.getDisplayName());
         return dto;
     }
 
     @Override
     @Transactional
     public void createStudent(Map<String, String> request) {
+        if (request.get("username") == null || request.get("username").isBlank()) {
+            throw new RuntimeException("Username is required");
+        }
+        if (request.get("password") == null || request.get("password").isBlank()) {
+            throw new RuntimeException("Password is required");
+        }
+        if (request.get("rollNo") == null || request.get("rollNo").isBlank()) {
+            throw new RuntimeException("Roll number is required");
+        }
+        if (request.get("className") == null || request.get("className").isBlank()) {
+            throw new RuntimeException("Class is required");
+        }
         if (userRepository.existsByUsername(request.get("username"))) {
             throw new RuntimeException("Username already exists");
+        }
+        if (request.get("email") != null && !request.get("email").isBlank() && userRepository.existsByEmail(request.get("email"))) {
+            throw new RuntimeException("Email is already registered");
+        }
+        if (studentRepository.existsByRollNo(request.get("rollNo"))) {
+            throw new RuntimeException("Roll number already exists");
+        }
+        if (request.get("phone") != null && !request.get("phone").isBlank() && studentRepository.existsByPhone(request.get("phone"))) {
+            throw new RuntimeException("Phone number already exists");
         }
 
         User user = new User();
@@ -68,6 +93,8 @@ public class StudentServiceImpl implements StudentService {
 
         Student student = new Student();
         student.setUser(user);
+        String fullName = request.get("fullName");
+        student.setFullName(fullName != null && !fullName.isBlank() ? fullName.trim() : request.get("username"));
         student.setRollNo(request.get("rollNo"));
         student.setClassName(request.get("className"));
         student.setEmail(request.get("email"));
@@ -91,6 +118,9 @@ public class StudentServiceImpl implements StudentService {
             userRepository.save(user);
         }
 
+        if (request.get("fullName") != null && !request.get("fullName").isBlank()) {
+            student.setFullName(request.get("fullName").trim());
+        }
         student.setRollNo(request.get("rollNo"));
         student.setClassName(request.get("className"));
         student.setEmail(request.get("email"));
@@ -101,11 +131,61 @@ public class StudentServiceImpl implements StudentService {
     @Override
     @Transactional
     public void deleteStudent(Long id) {
-        Student student = studentRepository.findById(id).orElseThrow(() -> new RuntimeException("Student not found"));
-        User user = student.getUser();
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        User studentUser = student.getUser();
+
+        // A parent account can be linked to more than one child. Therefore,
+        // deleting a Student removes only ParentStudent links and NEVER deletes
+        // the Parent user account.
+        List<ParentStudent> parentLinks = parentStudentRepository.findByStudentStudentId(id);
+        if (!parentLinks.isEmpty()) {
+            parentStudentRepository.deleteAll(parentLinks);
+            parentStudentRepository.flush();
+        }
+
+        // Remove all rows that own a foreign key to students.student_id.
+        List<Attendance> attendance = attendanceRepository.findByStudentStudentId(id);
+        if (!attendance.isEmpty()) {
+            attendanceRepository.deleteAll(attendance);
+            attendanceRepository.flush();
+        }
+
+        List<Fee> fees = feeRepository.findByStudentStudentId(id);
+        if (!fees.isEmpty()) {
+            feeRepository.deleteAll(fees);
+            feeRepository.flush();
+        }
+
+        List<Result> results = resultRepository.findByStudentStudentId(id);
+        if (!results.isEmpty()) {
+            resultRepository.deleteAll(results);
+            resultRepository.flush();
+        }
+
+        enrollmentRepository.findByStudentStudentId(id).ifPresent(enrollmentRepository::delete);
+        enrollmentRepository.flush();
+
+        // Notifications reference the student's User row rather than Student.
+        // Remove them before deleting the linked login account.
+        if (studentUser != null) {
+            List<Notification> notifications =
+                    notificationRepository.findByUserUserIdOrderByCreatedAtDesc(studentUser.getUserId());
+            if (!notifications.isEmpty()) {
+                notificationRepository.deleteAll(notifications);
+                notificationRepository.flush();
+            }
+        }
+
+        // Delete the Student after every student_id dependency is gone.
         studentRepository.delete(student);
-        if (user != null) {
-            userRepository.delete(user);
+        studentRepository.flush();
+
+        // Finally remove the Student login account. Parent accounts remain intact.
+        if (studentUser != null && userRepository.existsById(studentUser.getUserId())) {
+            userRepository.deleteById(studentUser.getUserId());
+            userRepository.flush();
         }
     }
 
@@ -119,6 +199,7 @@ public class StudentServiceImpl implements StudentService {
         Map<String, Object> studentInfo = new HashMap<>();
         studentInfo.put("studentId", student.getStudentId());
         studentInfo.put("username", student.getUser().getUsername());
+        studentInfo.put("fullName", student.getDisplayName());
         studentInfo.put("rollNo", student.getRollNo());
         studentInfo.put("className", student.getClassName());
         studentInfo.put("email", student.getEmail());
@@ -191,6 +272,7 @@ public class StudentServiceImpl implements StudentService {
                     if (student.getUser() != null) {
                         dto.setUsername(student.getUser().getUsername());
                     }
+                    dto.setFullName(student.getDisplayName());
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -211,7 +293,7 @@ public class StudentServiceImpl implements StudentService {
                 throw new RuntimeException("CSV file is empty");
             }
 
-            // Expected header: username,password,email,phone,rollNo,className
+            // Expected header: username,password,email,phone,rollNo,className[,fullName]
             String line;
             int rowNum = 1;
             while ((line = reader.readLine()) != null) {
@@ -251,6 +333,8 @@ public class StudentServiceImpl implements StudentService {
 
                     Student student = new Student();
                     student.setUser(user);
+                    String fullName = cols.length >= 7 && !cols[6].trim().isBlank() ? cols[6].trim() : username;
+                    student.setFullName(fullName);
                     student.setRollNo(rollNo);
                     student.setClassName(className);
                     student.setEmail(email);
