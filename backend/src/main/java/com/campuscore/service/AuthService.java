@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.campuscore.dto.AuthResponse;
+import com.campuscore.dto.ChangePasswordRequest;
 import com.campuscore.dto.LoginRequest;
 import com.campuscore.dto.RegisterRequest;
 import com.campuscore.entity.Role;
@@ -43,16 +44,20 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        // Student accounts are provisioned only after an admission is approved.
-        // Keep this backend guard even though Student is hidden from the public UI.
-        if ("Student".equalsIgnoreCase(request.getRole())) {
-            return new AuthResponse(null, null, null, null, null, null, null,
-                    "Student accounts are created automatically after admission approval", false);
+        // Public signup must never allow users to self-assign privileged roles.
+        // Student accounts are provisioned after admission approval and Teacher/Admin
+        // accounts are created by an administrator. Only Parent remains public signup.
+        if (request.getRole() == null || !"Parent".equalsIgnoreCase(request.getRole())) {
+            return new AuthResponse(null, null, null, null, null, null, null, null,
+                    "Only Parent accounts can be created from public registration. Student accounts are created after admission approval and Teacher accounts are created by Admin.", false);
         }
 
-        // Check if username already exists
+        // Login email and username must both identify one account unambiguously.
         if (userRepository.existsByUsername(request.getUsername())) {
-            return new AuthResponse(null, null, null, null, null, null, null, "Username already exists", false);
+            return new AuthResponse(null, null, null, null, null, null, null, null, "Username already exists", false);
+        }
+        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
+            return new AuthResponse(null, null, null, null, null, null, null, null, "Email is already registered", false);
         }
 
         // Resolve and validate the requested role against the self-registration
@@ -117,26 +122,32 @@ public class AuthService {
             teacher = teacherRepository.save(teacher);
             teacherId = teacher.getTeacherId();
         } else if (request.getRole().equals("Parent")) {
-            if (request.getChildRollNo() != null && !request.getChildRollNo().isBlank()) {
-                Student child = studentRepository.findAll().stream()
-                        .filter(s -> request.getChildRollNo().equalsIgnoreCase(s.getRollNo()))
-                        .findFirst()
-                        .orElseThrow(() -> new RuntimeException(
-                                "No student found with roll number " + request.getChildRollNo()));
-
-                com.campuscore.entity.ParentStudent link = new com.campuscore.entity.ParentStudent();
-                link.setParent(user);
-                link.setStudent(child);
-                link.setRelation(request.getRelation() != null && !request.getRelation().isBlank()
-                        ? request.getRelation()
-                        : "Guardian");
-                link.setLinkedAt(java.time.LocalDateTime.now());
-                parentStudentRepository.save(link);
+            if (request.getChildRollNo() == null || request.getChildRollNo().isBlank()) {
+                throw new RuntimeException("Child roll number is required for Parent registration");
             }
+
+            String relation = request.getRelation() == null || request.getRelation().isBlank()
+                    ? "Guardian"
+                    : request.getRelation().trim();
+            if (!java.util.Set.of("Father", "Mother", "Guardian").contains(relation)) {
+                throw new RuntimeException("Relation must be Father, Mother or Guardian");
+            }
+
+            Student child = studentRepository.findByRollNo(request.getChildRollNo().trim())
+                    .orElseThrow(() -> new RuntimeException(
+                            "No student found with roll number " + request.getChildRollNo()));
+
+            com.campuscore.entity.ParentStudent link = new com.campuscore.entity.ParentStudent();
+            link.setParent(user);
+            link.setStudent(child);
+            link.setRelation(relation);
+            link.setLinkedAt(java.time.LocalDateTime.now());
+            parentStudentRepository.save(link);
         }
 
         // Generate token
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
+        String displayName = user.getStudent() != null ? user.getStudent().getDisplayName() : user.getUsername();
 
         return new AuthResponse(
                 token,
@@ -146,6 +157,7 @@ public class AuthService {
                 user.getEmail(),
                 studentId,
                 teacherId,
+                displayName,
                 "Registration successful",
                 true);
     }
@@ -154,15 +166,8 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElse(null);
 
-        if (user == null) {
-            return new AuthResponse(null, null, null, null, null, null, null, "Invalid credentials", false);
-        }
-
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(user.getUsername(), request.getPassword()));
-        } catch (AuthenticationException ex) {
-            return new AuthResponse(null, null, null, null, null, null, null, "Invalid credentials", false);
+        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            return new AuthResponse(null, null, null, null, null, null, null, null, "Invalid credentials", false);
         }
 
         Long studentId = null;
@@ -176,6 +181,7 @@ public class AuthService {
         }
 
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
+        String displayName = user.getStudent() != null ? user.getStudent().getDisplayName() : user.getUsername();
 
         return new AuthResponse(
                 token,
@@ -185,7 +191,59 @@ public class AuthService {
                 user.getEmail(),
                 studentId,
                 teacherId,
+                displayName,
                 "Login successful",
                 true);
     }
+    @Transactional
+    public java.util.Map<String, Object> changePassword(String authorizationHeader, ChangePasswordRequest request) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Authentication is required");
+        }
+
+        String token = authorizationHeader.substring(7);
+        String username;
+        try {
+            username = jwtUtil.extractUsername(token);
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid or expired authentication token");
+        }
+
+        if (!jwtUtil.validateToken(token, username)) {
+            throw new RuntimeException("Invalid or expired authentication token");
+        }
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User account not found"));
+
+        String currentPassword = request.getCurrentPassword();
+        String newPassword = request.getNewPassword();
+        String confirmPassword = request.getConfirmPassword();
+
+        if (currentPassword == null || !passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new RuntimeException("Current password is incorrect");
+        }
+        if (newPassword == null || newPassword.length() < 8
+                || !newPassword.matches(".*[A-Z].*")
+                || !newPassword.matches(".*[a-z].*")
+                || !newPassword.matches(".*[0-9].*")
+                || !newPassword.matches(".*[^A-Za-z0-9].*")) {
+            throw new RuntimeException("New password must be at least 8 characters and include uppercase, lowercase, number and special character");
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            throw new RuntimeException("New password and confirmation do not match");
+        }
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new RuntimeException("New password must be different from the current password");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        return java.util.Map.of(
+                "success", true,
+                "message", "Password changed successfully"
+        );
+    }
+
 }

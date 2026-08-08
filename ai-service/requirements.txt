@@ -1,9 +1,10 @@
 fastapi
 uvicorn
 pandas
-scikit-learn
 joblib
+scikit-learn==1.9.0
 pydantic
+faker
 numpy
 python-multipart
 opencv-python-headless==4.10.0.84

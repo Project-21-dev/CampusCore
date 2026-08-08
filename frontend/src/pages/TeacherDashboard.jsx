@@ -23,7 +23,14 @@ const TeacherDashboard = () => {
       ])
 
       if (studentsResult.status === 'fulfilled') setStudents(studentsResult.value.data)
-      if (attendanceResult.status === 'fulfilled') setRecentAttendance(attendanceResult.value.data.slice(0, 10))
+      if (attendanceResult.status === 'fulfilled') {
+        const rows = Array.isArray(attendanceResult.value.data) ? attendanceResult.value.data : []
+        const sorted = [...rows].sort((a, b) => {
+          const dateCompare = String(b.date || '').localeCompare(String(a.date || ''))
+          return dateCompare !== 0 ? dateCompare : Number(b.attendanceId || 0) - Number(a.attendanceId || 0)
+        })
+        setRecentAttendance(sorted.slice(0, 10))
+      }
       if (aiResult.status === 'fulfilled') {
         setAiStudents(
           aiResult.value.data.filter((student) =>
@@ -97,7 +104,7 @@ const TeacherDashboard = () => {
 
 
       {/* AI Student Support */}
-      <div className="card shadow-sm mb-4">
+      <div className="card shadow-sm mb-4" id="analysis">
         <div className="card-header bg-danger text-white">
           <h5 className="mb-0"><i className="bi bi-cpu-fill me-2"></i>Students Requiring Attention</h5>
         </div>
@@ -147,7 +154,7 @@ const TeacherDashboard = () => {
                 {students.map((student) => (
                   <tr key={student.studentId}>
                     <td>{student.rollNo}</td>
-                    <td>{student.username}</td>
+                    <td>{student.fullName || student.username}</td>
                     <td>{student.className}</td>
                     <td>{student.email || '-'}</td>
                   </tr>
@@ -177,7 +184,9 @@ const TeacherDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {recentAttendance.map((attendance) => (
+                {recentAttendance.length === 0 ? (
+                  <tr><td colSpan="5" className="text-center py-4 text-muted">No attendance records yet.</td></tr>
+                ) : recentAttendance.map((attendance) => (
                   <tr key={attendance.attendanceId}>
                     <td>{attendance.studentName}</td>
                     <td>{attendance.rollNo}</td>

@@ -223,7 +223,7 @@ const AdminManageAttendance = () => {
                       <option value="">Choose a student...</option>
                       {students.map((student) => (
                         <option key={student.studentId} value={student.studentId}>
-                          {student.username} (Roll: {student.rollNo})
+                          {student.fullName || student.username} (Roll: {student.rollNo})
                         </option>
                       ))}
                     </select>

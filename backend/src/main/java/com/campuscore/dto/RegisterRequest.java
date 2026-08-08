@@ -17,7 +17,7 @@ public class RegisterRequest {
     private String username;
 
     @NotBlank(message = "Password is required")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[\\W_]).{8,}$", message = "Password must contain uppercase, lowercase, special char and be 8+ characters")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\\W_]).{8,}$", message = "Password must contain uppercase, lowercase, number, special char and be 8+ characters")
     private String password;
 
     @NotBlank(message = "Role is required")

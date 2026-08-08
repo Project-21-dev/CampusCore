@@ -13,8 +13,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/studentmanagement/enrollment")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
-@PreAuthorize("hasAnyRole('Admin', 'Teacher')")
 public class EnrollmentController {
 
     private final EnrollmentService enrollmentService;

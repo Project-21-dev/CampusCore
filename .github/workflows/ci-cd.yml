@@ -16,10 +16,6 @@ permissions:
   contents: read
 
 jobs:
-
-  # ============================================================
-  # SPRING BOOT BACKEND
-  # ============================================================
   backend:
     name: Build and Test Spring Boot Backend
     runs-on: ubuntu-latest
@@ -27,14 +23,11 @@ jobs:
     services:
       mysql:
         image: mysql:8.0
-
         env:
           MYSQL_DATABASE: schoolsync2
           MYSQL_ROOT_PASSWORD: campuscore_ci_password
-
         ports:
           - 3306:3306
-
         options: >-
           --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pcampuscore_ci_password"
           --health-interval=10s
@@ -54,14 +47,19 @@ jobs:
       # Do not put your real Gmail address or app password here.
       SPRING_MAIL_USERNAME: dummy@example.com
       SPRING_MAIL_PASSWORD: dummy-app-password
+
       APP_MAIL_SENDER_NAME: CampusCore CI
       APP_MAIL_SENDER_EMAIL: dummy@example.com
 
+      # CI-only values. Do not use real production secrets here.
+      APP_JWT_SECRET: CampusCoreCiOnlyJwtSecretKey1234567890ABCDEF
+      AI_SERVICE_API_KEY: campuscore-ci-ai-key
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set Up Java 21
+      - name: Set up Java 21
         uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -74,10 +72,6 @@ jobs:
       - name: Build and test backend
         run: ./mvnw --batch-mode --no-transfer-progress clean verify
 
-
-  # ============================================================
-  # REACT FRONTEND
-  # ============================================================
   frontend:
     name: Build React Frontend
     runs-on: ubuntu-latest
@@ -87,10 +81,10 @@ jobs:
         working-directory: frontend
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set Up Node.js 20
+      - name: Set up Node.js 20
         uses: actions/setup-node@v6
         with:
           node-version: "20"
@@ -103,79 +97,61 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-
-  # ============================================================
-  # FASTAPI AI SERVICE
-  # ============================================================
   ai-service:
     name: Validate FastAPI AI Service
     runs-on: ubuntu-latest
+
+    env:
+      AI_SERVICE_API_KEY: campuscore-ci-ai-key
 
     defaults:
       run:
         working-directory: ai-service
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set Up Python 3.12
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: ai-service/requirements.txt
 
-      # Remove conflicting OpenCV packages first.
-      # CampusCore face attendance should use only
-      # opencv-python-headless.
-      - name: Remove Conflicting OpenCV Packages
+      - name: Remove conflicting OpenCV packages
         run: |
           python -m pip install --upgrade pip
           pip uninstall -y cv2 opencv-python opencv-python-headless opencv-contrib-python || true
 
-      - name: Install AI Dependencies
+      - name: Install AI dependencies
         run: python -m pip install -r requirements.txt
 
-      # Make CI fail here with a clear message if the wrong
-      # OpenCV package is ever installed again.
-      - name: Verify OpenCV Installation
+      - name: Verify OpenCV
         run: |
-          python -c "import cv2; print('OpenCV version:', cv2.__version__); print('OpenCV path:', cv2.__file__); assert hasattr(cv2, 'CascadeClassifier'), 'CascadeClassifier is missing from OpenCV'; print('CascadeClassifier: OK')"
+          python -c "import cv2; print('OpenCV:', cv2.__version__); assert hasattr(cv2, 'CascadeClassifier'), 'CascadeClassifier missing'; print('CascadeClassifier: OK')"
 
-      - name: Compile Python Files
+      - name: Compile Python files
         run: python -m compileall app training
 
-      - name: Verify FastAPI App
-        run: |
-          python -c "from app.main import app; print('FastAPI application:', app.title)"
+      - name: Verify FastAPI app
+        run: python -c "from app.main import app; print('FastAPI application:', app.title)"
 
-      - name: Verify Face Attendance Module
-        run: |
-          python -c "from app.face_service import enroll_student, enrollment_status, verify_student; print('Face attendance module: OK')"
-
-      - name: Verify Trained Model Exists
+      - name: Verify trained model exists
         run: test -f models/student_risk_model.pkl
 
-      - name: Verify Random Forest Prediction
+      - name: Verify Random Forest prediction
         run: |
           python - <<'PY'
           import joblib
 
-          model = joblib.load("models/student_risk_model.pkl")
-
-          sample = [[
-              85.0,
-              78.0,
-              3,
-              0,
-              1.0
-          ]]
+          model = joblib.load('models/student_risk_model.pkl')
+          sample = [[85.0, 78.0, 3, 0, 1.0]]
 
           prediction = model.predict(sample)
           probabilities = model.predict_proba(sample)
 
-          print("Random Forest prediction:", prediction[0])
-          print("Prediction probabilities:", probabilities[0])
-          print("Model classes:", model.classes_)
+          print('Random Forest prediction:', prediction[0])
+          print('Prediction probabilities:', probabilities[0])
+          print('Model classes:', model.classes_)
           PY

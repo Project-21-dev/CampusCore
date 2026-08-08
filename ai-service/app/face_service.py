@@ -15,8 +15,26 @@ FACE_DATA_DIR.mkdir(parents=True, exist_ok=True)
 FACE_SIZE = (200, 200)
 MATCH_THRESHOLD = float(os.getenv("FACE_MATCH_THRESHOLD", "0.90"))
 
-_cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-_face_cascade = cv2.CascadeClassifier(_cascade_path)
+def _load_face_cascade():
+    if not hasattr(cv2, "CascadeClassifier") or not hasattr(cv2, "data"):
+        raise RuntimeError(
+            "OpenCV installation is incomplete. Install opencv-python-headless==4.10.0.84."
+        )
+    cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+    cascade = cv2.CascadeClassifier(cascade_path)
+    if cascade.empty():
+        raise RuntimeError(f"Could not load Haar cascade: {cascade_path}")
+    return cascade
+
+
+_face_cascade = None
+
+
+def _get_face_cascade():
+    global _face_cascade
+    if _face_cascade is None:
+        _face_cascade = _load_face_cascade()
+    return _face_cascade
 
 
 def _decode_image(raw: bytes) -> np.ndarray:
@@ -29,7 +47,7 @@ def _decode_image(raw: bytes) -> np.ndarray:
 
 def _extract_single_face(image: np.ndarray) -> np.ndarray:
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    faces = _face_cascade.detectMultiScale(
+    faces = _get_face_cascade().detectMultiScale(
         gray,
         scaleFactor=1.1,
         minNeighbors=5,

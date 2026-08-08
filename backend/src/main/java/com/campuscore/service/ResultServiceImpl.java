@@ -810,9 +810,7 @@ public class ResultServiceImpl {
 
         map.put(
                 "studentName",
-                result.getStudent()
-                        .getUser()
-                        .getUsername()
+                result.getStudent().getDisplayName()
         );
 
         map.put(

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 
@@ -19,22 +20,20 @@ const ParentDashboard = () => {
 
   const fetchChildren = async () => {
     try {
-      const [childrenResult, aiResult] = await Promise.allSettled([
-        api.get(`/parent/${user.userId}/children`),
-        api.get('/analytics/at-risk-students')
-      ])
-
-      const childData = childrenResult.status === 'fulfilled' ? childrenResult.value.data : []
+      const childrenRes = await api.get(`/parent/${user.userId}/children`)
+      const childData = Array.isArray(childrenRes.data) ? childrenRes.data : []
       setChildren(childData)
 
-      if (aiResult.status === 'fulfilled') {
-        const childIds = new Set(childData.map((child) => child.studentId))
-        const predictions = {}
-        aiResult.value.data.forEach((prediction) => {
-          if (childIds.has(prediction.studentId)) predictions[prediction.studentId] = prediction
-        })
-        setAiByStudentId(predictions)
-      }
+      const riskResults = await Promise.allSettled(
+        childData.map((child) => api.get(`/analytics/student/${child.studentId}/risk`))
+      )
+      const predictions = {}
+      riskResults.forEach((result, index) => {
+        if (result.status === 'fulfilled' && result.value?.data) {
+          predictions[childData[index].studentId] = result.value.data
+        }
+      })
+      setAiByStudentId(predictions)
     } catch (error) {
       console.error('Error fetching children:', error)
     } finally {
@@ -132,7 +131,7 @@ const ParentDashboard = () => {
           No children linked yet. Use the form above with your child's roll number to get started.
         </div>
       ) : (
-        <div className="row g-4">
+        <div className="row g-4" id="children">
           {children.map((child) => (
             <div className="col-md-6" key={child.linkId}>
               <div className="card shadow-sm h-100">
@@ -168,11 +167,17 @@ const ParentDashboard = () => {
                       <div className="text-muted small">Avg Result</div>
                     </div>
                   </div>
+                  <div className="d-flex flex-wrap gap-2 border-top mt-3 pt-3">
+                    <Link to="/fees" className="btn btn-sm btn-warning"><i className="bi bi-wallet2 me-1"></i>Fees</Link>
+                    <Link to="/parent/attendance" className="btn btn-sm btn-outline-info"><i className="bi bi-calendar-check me-1"></i>Attendance</Link>
+                    <Link to="/parent/results" className="btn btn-sm btn-outline-success"><i className="bi bi-bar-chart me-1"></i>Results</Link>
+                    <Link to="/parent/analysis" className="btn btn-sm btn-outline-primary"><i className="bi bi-stars me-1"></i>Analysis</Link>
+                  </div>
                   {aiByStudentId[child.studentId] && (() => {
                     const prediction = aiByStudentId[child.studentId]
                     const unavailable = prediction.dataStatus && prediction.dataStatus !== 'AVAILABLE'
                     return (
-                      <div className="border-top mt-3 pt-3">
+                      <div className="border-top mt-3 pt-3" id="analysis">
                         <h6 className="mb-2"><i className="bi bi-stars me-2"></i>Academic Support Status</h6>
                         <p className="mb-2">
                           <strong>Status:</strong>{' '}

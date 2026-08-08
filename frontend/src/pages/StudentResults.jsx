@@ -94,7 +94,7 @@ const StudentResults = () => {
           My Results
         </h1>
         <span className="badge bg-success fs-6">
-          {user?.username}
+          {user?.displayName || user?.username}
         </span>
         <button
           className="btn btn-outline-primary ms-3"

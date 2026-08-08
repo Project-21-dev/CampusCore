@@ -50,7 +50,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .map(e -> {
                     EnrollmentDTO dto = modelMapper.map(e, EnrollmentDTO.class);
                     dto.setStudentId(e.getStudent().getStudentId());
-                    dto.setStudentName(e.getStudent().getUser().getUsername());
+                    dto.setStudentName(e.getStudent().getDisplayName());
                     dto.setRollNo(e.getStudent().getRollNo());
                     return dto;
                 })

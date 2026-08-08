@@ -37,6 +37,12 @@ public class Fee {
 
     private String paymentMethod; // Cash, Card, UPI, NetBanking
     private String transactionId;
+
+    // Server-created Razorpay order id used for secure payment verification.
+    // This is intentionally not exposed in FeeDTO.
+    @Column(length = 100)
+    private String razorpayOrderId;
+
     private String receiptNumber; // Generated receipt number for paid fees
     private String remarks;
 }

@@ -399,7 +399,7 @@ const Attendance = () => {
                   {students.map((student) => (
                     <tr key={student.studentId}>
                       <td>{student.rollNo}</td>
-                      <td>{student.username}</td>
+                      <td>{student.fullName || student.username}</td>
                       <td>{student.className}</td>
                       <td>
                         <button

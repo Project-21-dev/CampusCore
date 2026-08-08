@@ -1,8 +1,11 @@
 package com.campuscore.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import com.campuscore.dto.FeeDTO;
 import com.campuscore.service.FeeService;
 import com.campuscore.service.FeeReceiptService;
+import com.campuscore.service.RazorpayPaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -16,11 +19,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/studentmanagement/fee")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class FeeController {
 
     private final FeeService feeService;
     private final FeeReceiptService feeReceiptService;
+    private final RazorpayPaymentService razorpayPaymentService;
 
     @PostMapping
     @PreAuthorize("hasRole('Admin')")
@@ -40,7 +43,7 @@ public class FeeController {
     }
 
     @GetMapping("/student/{studentId}")
-    @PreAuthorize("hasAnyRole('Admin', 'Student')")
+    @PreAuthorize("@securityAccess.canAccessStudent(authentication, #studentId)")
     public ResponseEntity<List<FeeDTO>> getStudentFees(@PathVariable Long studentId) {
         return ResponseEntity.ok(feeService.getStudentFees(studentId));
     }
@@ -56,12 +59,45 @@ public class FeeController {
         }
     }
 
+    /**
+     * Admin-only: records money that was received outside CampusCore
+     * (cash, cheque, bank transfer, etc.).
+     */
     @PutMapping("/pay/{id}")
-    @PreAuthorize("hasRole('Student')")
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<?> payFee(@PathVariable Long id, @RequestBody Map<String, String> request) {
         try {
             feeService.payFee(id, request);
-            return ResponseEntity.ok(Map.of("message", "Fee paid successfully"));
+            return ResponseEntity.ok(Map.of("message", "Offline payment recorded successfully"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    /**
+     * Student/Parent online-payment step 1: create a Razorpay order on the server.
+     * Ownership is checked against the fee before the order can be created.
+     */
+    @PostMapping("/online/order/{id}")
+    @PreAuthorize("hasAnyRole('Student','Parent') and @securityAccess.canAccessFee(authentication, #id)")
+    public ResponseEntity<?> createOnlinePaymentOrder(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(razorpayPaymentService.createOrder(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    /**
+     * Student/Parent online-payment step 2: verify Razorpay signature and payment
+     * details server-side. A fee is marked Paid only after successful verification.
+     */
+    @PostMapping("/online/verify/{id}")
+    @PreAuthorize("hasAnyRole('Student','Parent') and @securityAccess.canAccessFee(authentication, #id)")
+    public ResponseEntity<?> verifyOnlinePayment(@PathVariable Long id, @RequestBody Map<String, String> request) {
+        try {
+            razorpayPaymentService.verifyAndRecordPayment(id, request);
+            return ResponseEntity.ok(Map.of("message", "Online payment verified and receipt generated"));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
@@ -93,7 +129,7 @@ public class FeeController {
     }
 
     @GetMapping("/receipt/{id}")
-    @PreAuthorize("hasAnyRole('Admin', 'Student')")
+    @PreAuthorize("@securityAccess.canAccessFee(authentication, #id)")
     public ResponseEntity<byte[]> downloadReceipt(@PathVariable Long id) {
         try {
             byte[] pdfBytes = feeReceiptService.generateReceipt(id);

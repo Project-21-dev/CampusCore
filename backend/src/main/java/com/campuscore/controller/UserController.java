@@ -1,5 +1,7 @@
 package com.campuscore.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import com.campuscore.dto.StudentDTO;
 import com.campuscore.dto.TeacherDTO;
 import com.campuscore.service.StudentService;
@@ -15,7 +17,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class UserController {
 
     private final StudentService studentService;
@@ -28,7 +29,7 @@ public class UserController {
     }
 
     @GetMapping("/students/{id}")
-    @PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("@securityAccess.canAccessStudent(authentication, #id)")
     public ResponseEntity<StudentDTO> getStudentById(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(studentService.getStudentById(id));
@@ -64,9 +65,11 @@ public class UserController {
     public ResponseEntity<?> deleteStudent(@PathVariable Long id) {
         try {
             studentService.deleteStudent(id);
-            return ResponseEntity.ok(Map.of("message", "Student deleted successfully"));
+            return ResponseEntity.ok(Map.of(
+                    "message",
+                    "Student and student-owned records deleted successfully. Parent accounts were preserved."));
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
@@ -104,7 +107,7 @@ public class UserController {
     }
 
     @GetMapping("/teachers/{id}")
-    @PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("@securityAccess.canAccessTeacher(authentication, #id)")
     public ResponseEntity<TeacherDTO> getTeacherById(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(teacherService.getTeacherById(id));
@@ -127,7 +130,7 @@ public class UserController {
     // Admin manages teachers here; a Teacher also hits this same endpoint to
     // save their own profile edits from TeacherProfile.jsx.
     @PutMapping("/teachers/{id}")
-    @PreAuthorize("hasAnyRole('Admin', 'Teacher')")
+    @PreAuthorize("@securityAccess.canAccessTeacher(authentication, #id)")
     public ResponseEntity<?> updateTeacher(@PathVariable Long id, @RequestBody Map<String, String> request) {
         try {
             teacherService.updateTeacher(id, request);

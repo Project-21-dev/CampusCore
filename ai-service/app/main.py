@@ -1,8 +1,10 @@
 from pathlib import Path
+import os
+import secrets
 
 import joblib
 import pandas as pd
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, UploadFile
 
 from app.models.student import StudentData
 from app.face_service import enroll_student, enrollment_status, verify_student
@@ -16,6 +18,13 @@ app = FastAPI(
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 MODEL_PATH = BASE_DIR / "models" / "student_risk_model.pkl"
+
+AI_SERVICE_API_KEY = os.getenv("AI_SERVICE_API_KEY", "campuscore-local-ai-key-change-me")
+
+def require_internal_api_key(x_internal_api_key: str | None = Header(default=None)):
+    if not x_internal_api_key or not secrets.compare_digest(x_internal_api_key, AI_SERVICE_API_KEY):
+        raise HTTPException(status_code=401, detail="Invalid internal API key")
+
 
 
 try:
@@ -35,14 +44,25 @@ def root():
 
 @app.get("/health")
 def health():
+    face_engine_ready = True
+    face_engine_error = None
+    try:
+        from app.face_service import _get_face_cascade
+        _get_face_cascade()
+    except Exception as error:
+        face_engine_ready = False
+        face_engine_error = str(error)
+
     return {
         "status": "UP",
-        "modelLoaded": True
+        "modelLoaded": True,
+        "faceEngineReady": face_engine_ready,
+        "faceEngineError": face_engine_error
     }
 
 
 @app.post("/predict")
-def predict(data: StudentData):
+def predict(data: StudentData, _: None = Depends(require_internal_api_key)):
 
     input_data = pd.DataFrame(
         [
@@ -144,12 +164,13 @@ def predict(data: StudentData):
 async def face_enroll(
     student_id: int = Form(...),
     images: list[UploadFile] = File(...),
+    _: None = Depends(require_internal_api_key),
 ):
     return await enroll_student(student_id, images)
 
 
 @app.get("/face/enrollment/{student_id}")
-def face_enrollment_status(student_id: int):
+def face_enrollment_status(student_id: int, _: None = Depends(require_internal_api_key)):
     return enrollment_status(student_id)
 
 
@@ -157,5 +178,6 @@ def face_enrollment_status(student_id: int):
 async def face_verify(
     student_id: int = Form(...),
     image: UploadFile = File(...),
+    _: None = Depends(require_internal_api_key),
 ):
     return await verify_student(student_id, image)

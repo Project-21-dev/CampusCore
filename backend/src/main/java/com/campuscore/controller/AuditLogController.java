@@ -12,8 +12,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/audit")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
-@PreAuthorize("hasRole('Admin')")
 public class AuditLogController {
 
     private final AuditLogService auditLogService;

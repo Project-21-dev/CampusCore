@@ -115,7 +115,7 @@ const FaceAttendanceStudent = () => {
           <i className="bi bi-arrow-left me-2"></i>Back
         </Link>
         <h1 className="mb-0"><i className="bi bi-person-bounding-box text-info me-2"></i>Face Attendance</h1>
-        <span className="badge bg-info">{user?.username}</span>
+        <span className="badge bg-info">{user?.displayName || user?.username}</span>
       </div>
 
       <div className="alert alert-warning">

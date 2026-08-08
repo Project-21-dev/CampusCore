@@ -333,11 +333,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
             dto.setStudentId(studentId);
 
-            dto.setStudentName(
-                    student.getUser() != null
-                            ? student.getUser().getUsername()
-                            : null
-            );
+            dto.setStudentName(student.getDisplayName());
 
             dto.setRollNo(
                     student.getRollNo()

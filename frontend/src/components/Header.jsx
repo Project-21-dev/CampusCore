@@ -27,7 +27,7 @@ const Header = () => {
     <header className="app-header sticky-top">
       <nav className="navbar navbar-expand-xl navbar-dark">
         <div className="container-fluid app-nav-shell">
-          <Link className="navbar-brand app-brand" to="/">
+          <Link className="navbar-brand app-brand" to={user && dashboardLink ? dashboardLink : '/'}>
             <span className="app-brand-mark">
               <i className="bi bi-mortarboard-fill"></i>
             </span>
@@ -51,44 +51,77 @@ const Header = () => {
 
           <div className="collapse navbar-collapse" id="campusCoreNav">
             <ul className="navbar-nav mx-xl-auto align-items-xl-center app-nav-list">
-              <li className="nav-item"><NavLink className={navClass} to="/"><i className="bi bi-house-door"></i>Home</NavLink></li>
-              <li className="nav-item"><NavLink className={navClass} to="/about"><i className="bi bi-info-circle"></i>About</NavLink></li>
-              <li className="nav-item"><NavLink className={navClass} to="/contact"><i className="bi bi-chat-dots"></i>Contact</NavLink></li>
-              <li className="nav-item"><NavLink className={navClass} to="/admission"><i className="bi bi-file-earmark-person"></i>Admission</NavLink></li>
-              <li className="nav-item"><NavLink className={navClass} to="/admission/status"><i className="bi bi-search"></i>Status</NavLink></li>
+              {!user && (
+                <>
+                  <li className="nav-item"><NavLink className={navClass} to="/"><i className="bi bi-house-door"></i>Home</NavLink></li>
+                  <li className="nav-item"><NavLink className={navClass} to="/about"><i className="bi bi-info-circle"></i>About</NavLink></li>
+                  <li className="nav-item"><NavLink className={navClass} to="/contact"><i className="bi bi-chat-dots"></i>Contact</NavLink></li>
+                  <li className="nav-item"><NavLink className={navClass} to="/admission"><i className="bi bi-file-earmark-person"></i>Admission</NavLink></li>
+                  <li className="nav-item"><NavLink className={navClass} to="/admission/status"><i className="bi bi-search"></i>Admission Status</NavLink></li>
+                </>
+              )}
 
               {user && dashboardLink && (
                 <li className="nav-item"><NavLink className={navClass} to={dashboardLink}><i className="bi bi-grid-1x2"></i>Dashboard</NavLink></li>
               )}
 
-              {user && (user.role === 'Admin' || user.role === 'Teacher') && (
+              {user?.role === 'Admin' && (
                 <li className="nav-item dropdown">
                   <button className="nav-link app-nav-link dropdown-toggle border-0 bg-transparent" data-bs-toggle="dropdown" type="button">
                     <i className="bi bi-sliders"></i>Manage
                   </button>
                   <ul className="dropdown-menu app-dropdown-menu">
-                    <li>
-                      <Link
-                        className="dropdown-item"
-                        to={user.role === 'Admin' ? '/admin/attendance' : '/attendance'}
-                      >
-                        <i className="bi bi-calendar-check"></i>Attendance
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        className="dropdown-item"
-                        to={user.role === 'Admin' ? '/admin/results' : '/results'}
-                      >
-                        <i className="bi bi-bar-chart"></i>Results
-                      </Link>
-                    </li>
+                    <li><Link className="dropdown-item" to="/admin/admissions"><i className="bi bi-file-earmark-check"></i>Admissions</Link></li>
+                    <li><Link className="dropdown-item" to="/admin/students"><i className="bi bi-people"></i>Students</Link></li>
+                    <li><Link className="dropdown-item" to="/admin/parents"><i className="bi bi-person-hearts"></i>Parents</Link></li>
+                    <li><Link className="dropdown-item" to="/admin/teachers"><i className="bi bi-person-badge"></i>Teachers</Link></li>
+                    <li><Link className="dropdown-item" to="/admin/attendance"><i className="bi bi-calendar-check"></i>Attendance</Link></li>
+                    <li><Link className="dropdown-item" to="/admin/results"><i className="bi bi-bar-chart"></i>Results</Link></li>
                     <li><Link className="dropdown-item" to="/enrollment"><i className="bi bi-journal-bookmark"></i>Enrollment</Link></li>
                     <li><Link className="dropdown-item" to="/fees"><i className="bi bi-wallet2"></i>Fees</Link></li>
-                    {user.role === 'Admin' && <li><hr className="dropdown-divider" /></li>}
-                    {user.role === 'Admin' && <li><Link className="dropdown-item" to="/admin/audit-log"><i className="bi bi-clock-history"></i>Audit Log</Link></li>}
+                    <li><hr className="dropdown-divider" /></li>
+                    <li><Link className="dropdown-item" to="/admin/audit-log"><i className="bi bi-clock-history"></i>Audit Log</Link></li>
                   </ul>
                 </li>
+              )}
+
+              {user?.role === 'Teacher' && (
+                <li className="nav-item dropdown">
+                  <button className="nav-link app-nav-link dropdown-toggle border-0 bg-transparent" data-bs-toggle="dropdown" type="button">
+                    <i className="bi bi-sliders"></i>Manage
+                  </button>
+                  <ul className="dropdown-menu app-dropdown-menu">
+                    <li><Link className="dropdown-item" to="/attendance"><i className="bi bi-camera"></i>Attendance</Link></li>
+                    <li><Link className="dropdown-item" to="/results"><i className="bi bi-bar-chart"></i>Results</Link></li>
+                    <li><Link className="dropdown-item" to="/enrollment"><i className="bi bi-journal-bookmark"></i>Enrollment</Link></li>
+                  </ul>
+                </li>
+              )}
+
+              {user?.role === 'Admin' && (
+                <li className="nav-item"><NavLink className={navClass} to="/admin/analytics"><i className="bi bi-graph-up-arrow"></i>Analytics</NavLink></li>
+              )}
+
+              {user?.role === 'Teacher' && (
+                <li className="nav-item"><a className="nav-link app-nav-link" href="/teacher/dashboard#analysis"><i className="bi bi-graph-up-arrow"></i>Analytics</a></li>
+              )}
+
+              {user?.role === 'Student' && (
+                <>
+                  <li className="nav-item"><NavLink className={navClass} to="/fees"><i className="bi bi-wallet2"></i>Fees</NavLink></li>
+                  <li className="nav-item"><NavLink className={navClass} to="/student/attendance"><i className="bi bi-calendar-check"></i>Attendance</NavLink></li>
+                  <li className="nav-item"><NavLink className={navClass} to="/student/results"><i className="bi bi-bar-chart"></i>Results</NavLink></li>
+                  <li className="nav-item"><a className="nav-link app-nav-link" href="/student/dashboard#analysis"><i className="bi bi-stars"></i>My Analysis</a></li>
+                </>
+              )}
+
+              {user?.role === 'Parent' && (
+                <>
+                  <li className="nav-item"><NavLink className={navClass} to="/fees"><i className="bi bi-wallet2"></i>Child Fees</NavLink></li>
+                  <li className="nav-item"><NavLink className={navClass} to="/parent/attendance"><i className="bi bi-calendar-check"></i>Child Attendance</NavLink></li>
+                  <li className="nav-item"><NavLink className={navClass} to="/parent/results"><i className="bi bi-bar-chart"></i>Child Results</NavLink></li>
+                  <li className="nav-item"><NavLink className={navClass} to="/parent/analysis"><i className="bi bi-stars"></i>Child Analysis</NavLink></li>
+                </>
               )}
 
               {user && (
@@ -100,21 +133,23 @@ const Header = () => {
               {user ? (
                 <div className="dropdown">
                   <button className="app-user-button dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span className="app-user-avatar">{(user.username || user.email || 'U').charAt(0).toUpperCase()}</span>
+                    <span className="app-user-avatar">{(user.displayName || user.username || user.email || 'U').charAt(0).toUpperCase()}</span>
                     <span className="app-user-copy">
-                      <strong>{user.username || user.email}</strong>
+                      <strong>{user.displayName || user.username || user.email}</strong>
                       <small>{user.role}</small>
                     </span>
                   </button>
                   <ul className="dropdown-menu dropdown-menu-end app-dropdown-menu">
                     {dashboardLink && <li><Link className="dropdown-item" to={dashboardLink}><i className="bi bi-grid"></i>My dashboard</Link></li>}
+                    <li><Link className="dropdown-item" to="/change-password"><i className="bi bi-shield-lock"></i>Change password</Link></li>
+                    <li><hr className="dropdown-divider" /></li>
                     <li><button className="dropdown-item text-danger" type="button" onClick={handleLogout}><i className="bi bi-box-arrow-right"></i>Logout</button></li>
                   </ul>
                 </div>
               ) : (
                 <>
                   <Link to="/login" className="btn app-btn-ghost">Login</Link>
-                  <Link to="/register" className="btn app-btn-primary">Create account</Link>
+                  <Link to="/register" className="btn app-btn-primary">Create Parent Account</Link>
                 </>
               )}
             </div>

@@ -8,11 +8,15 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState({
     students: 0,
     teachers: 0,
+    parents: 0,
     totalAttendance: 0,
-    todayAttendance: 0
+    todayAttendance: 0,
+    feesCollected: 0,
+    feesPending: 0
   })
   const [students, setStudents] = useState([])
   const [teachers, setTeachers] = useState([])
+  const [parents, setParents] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -21,25 +25,34 @@ const AdminDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [studentsRes, teachersRes, attendanceRes] = await Promise.all([
+      const [studentsRes, teachersRes, parentsRes, attendanceRes, feesRes] = await Promise.all([
         api.get('/user/students'),
         api.get('/user/teachers'),
-        api.get('/attendance/all')
+        api.get('/parent/admin/all'),
+        api.get('/attendance/all'),
+        api.get('/studentmanagement/fee/all')
       ])
 
       setStudents(studentsRes.data)
       setTeachers(teachersRes.data)
-      console.log(teachersRes.data);
+      setParents(Array.isArray(parentsRes.data) ? parentsRes.data : [])
       const today = new Date().toISOString().split('T')[0]
       const todayAttendance = attendanceRes.data.filter(
         a => a.date === today
       )
 
+      const feeRows = Array.isArray(feesRes.data) ? feesRes.data : []
+      const feesCollected = feeRows.filter((fee) => fee.status === 'Paid').reduce((sum, fee) => sum + Number(fee.amount || 0), 0)
+      const feesPending = feeRows.filter((fee) => fee.status !== 'Paid').reduce((sum, fee) => sum + Number(fee.amount || 0), 0)
+
       setStats({
         students: studentsRes.data.length,
         teachers: teachersRes.data.length,
+        parents: Array.isArray(parentsRes.data) ? parentsRes.data.length : 0,
         totalAttendance: attendanceRes.data.length,
-        todayAttendance: todayAttendance.length
+        todayAttendance: todayAttendance.length,
+        feesCollected,
+        feesPending
       })
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -115,24 +128,47 @@ const AdminDashboard = () => {
       </div>
 
       <div className="row g-3 mb-4">
-        <div className="col-md-6">
+        <div className="col-md-4">
           <Link to="/admin/admissions" className="text-decoration-none">
             <div className="card bg-info text-white h-100">
               <div className="card-body text-center">
                 <i className="bi bi-file-earmark-person" style={{ fontSize: '48px' }}></i>
                 <h5 className="mt-3">Admission Applications</h5>
-              
               </div>
             </div>
           </Link>
         </div>
-        <div className="col-md-6">
+        <div className="col-md-4">
           <Link to="/enrollment" className="text-decoration-none">
             <div className="card bg-secondary text-white h-100">
               <div className="card-body text-center">
                 <i className="bi bi-book-fill" style={{ fontSize: '48px' }}></i>
                 <h5 className="mt-3">Enrollment Management</h5>
-                
+              </div>
+            </div>
+          </Link>
+        </div>
+        <div className="col-md-4">
+          <Link to="/fees" className="text-decoration-none">
+            <div className="card bg-danger text-white h-100">
+              <div className="card-body text-center">
+                <i className="bi bi-wallet2" style={{ fontSize: '48px' }}></i>
+                <h5 className="mt-3">Fee Management</h5>
+                <small>Due ₹{stats.feesPending.toFixed(2)} · Collected ₹{stats.feesCollected.toFixed(2)}</small>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </div>
+
+      <div className="row g-3 mb-4">
+        <div className="col-md-12">
+          <Link to="/admin/parents" className="text-decoration-none">
+            <div className="card h-100 border-0 shadow-sm" style={{ background: 'linear-gradient(135deg, #0f766e, #14b8a6)', color: '#fff' }}>
+              <div className="card-body text-center">
+                <i className="bi bi-person-hearts" style={{ fontSize: '48px' }}></i>
+                <h5 className="mt-3">Manage Parents</h5>
+                <small>{stats.parents} parent account{stats.parents === 1 ? '' : 's'} · Review and manage child links</small>
               </div>
             </div>
           </Link>
@@ -232,7 +268,7 @@ const AdminDashboard = () => {
                 {students.map((student) => (
                   <tr key={student.studentId}>
                     <td>{student.rollNo}</td>
-                    <td>{student.username}</td>
+                    <td>{student.fullName || student.username}</td>
                     <td>{student.className}</td>
                     <td>{student.email || '-'}</td>
                     <td>{student.phone || '-'}</td>

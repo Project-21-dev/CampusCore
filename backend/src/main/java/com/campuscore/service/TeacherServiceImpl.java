@@ -55,6 +55,9 @@ public class TeacherServiceImpl implements TeacherService {
         if (userRepository.existsByUsername(request.get("username"))) {
             throw new RuntimeException("Username already exists");
         }
+        if (request.get("email") != null && !request.get("email").isBlank() && userRepository.existsByEmail(request.get("email"))) {
+            throw new RuntimeException("Email is already registered");
+        }
 
         User user = new User();
         user.setUsername(request.get("username"));

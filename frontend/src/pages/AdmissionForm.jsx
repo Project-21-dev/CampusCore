@@ -116,6 +116,11 @@ const AdmissionForm = () => {
 
   if (!/^\d{4}-\d{4}$/.test(formData.academicYear)) {
     newErrors.academicYear = "Academic year format must be YYYY-YYYY";
+  } else {
+    const [startYear, endYear] = formData.academicYear.split('-').map(Number);
+    if (endYear !== startYear + 1) {
+      newErrors.academicYear = "Academic year must be consecutive, for example 2026-2027";
+    }
   }
 
   if (formData.previousMarks) {
@@ -137,7 +142,21 @@ const AdmissionForm = () => {
     newErrors.motherName = "Mother name must contain only letters";
   }
 
-
+  if (!formData.fatherOccupation.trim()) {
+    newErrors.fatherOccupation = "Father occupation is required";
+  }
+  if (!/^[6-9]\d{9}$/.test(formData.fatherPhone)) {
+    newErrors.fatherPhone = "Enter a valid 10-digit Indian mobile number";
+  }
+  if (!formData.motherOccupation.trim()) {
+    newErrors.motherOccupation = "Mother occupation is required";
+  }
+  if (!/^[6-9]\d{9}$/.test(formData.motherPhone)) {
+    newErrors.motherPhone = "Enter a valid 10-digit Indian mobile number";
+  }
+  if (formData.guardianPhone && !/^[6-9]\d{9}$/.test(formData.guardianPhone)) {
+    newErrors.guardianPhone = "Enter a valid 10-digit Indian mobile number";
+  }
 
   setErrors(newErrors);
   return Object.keys(newErrors).length === 0;
@@ -178,7 +197,7 @@ const AdmissionForm = () => {
           state: "",
           pincode: "",
           appliedClass: "",
-          academicYear: new Date().getFullYear().toString(),
+          academicYear: `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
           fatherName: "",
           fatherOccupation: "",
           fatherPhone: "",
@@ -472,6 +491,7 @@ const AdmissionForm = () => {
                           onChange={handleChange}
                           required
                         />
+                        {errors.fatherOccupation && <div className="text-danger">{errors.fatherOccupation}</div>}
                       </div>
                       <div className="col">
                         <input
@@ -483,6 +503,7 @@ const AdmissionForm = () => {
                           onChange={handleChange}
                           required
                         />
+                        {errors.fatherPhone && <div className="text-danger">{errors.fatherPhone}</div>}
                       </div>
                     </div>
 
@@ -511,6 +532,7 @@ const AdmissionForm = () => {
                           onChange={handleChange}
                           required
                         />
+                        {errors.motherOccupation && <div className="text-danger">{errors.motherOccupation}</div>}
                       </div>
                       <div className="col">
                         <input
@@ -522,6 +544,7 @@ const AdmissionForm = () => {
                           onChange={handleChange}
                           required
                         />
+                        {errors.motherPhone && <div className="text-danger">{errors.motherPhone}</div>}
                       </div>
                     </div>
 
